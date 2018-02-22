@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "element-ui": "^2.0.11",
-    "nuxt": "^1.0.0"
+    "nuxt": "^1.0.0",
+    "vuedraggable": "^2.16.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.1",

@@ -29,19 +29,21 @@
           <span >
             <el-button 
               type='danger'
+              size='small'
               class='float-buttons'
               icon='el-icon-close'
-              @click.native.prevent='onButtonCancel'
+              @click='onButtonCancel'
               round
             >
               キャンセル
             </el-button>
             <el-button 
               type='success'
+              size='small'
               class='float-buttons'
               icon='el-icon-check'
               :disabled='name === ""'
-              @click.native.prevent='onButtonOk'
+              @click='onButtonOk'
               round
             >
               保存
@@ -97,12 +99,12 @@ export default {
   methods: {
     onButtonOk() {
       if(!this.name) return
-      const request = new ProjectUpdateRequest(
-        this.id,
-        this.name,
-        this.description, 
-        this.userIds,
-      )
+      const request = new ProjectUpdateRequest({
+        id: this.id,
+        name: this.name,
+        description: this.description, 
+        userIds: this.userIds,
+      })
       try{
         this.onOk(request)
         this.reset()

@@ -5,6 +5,7 @@
             <h3><font color='royalblue'>ユーザーの一覧</font></h3>
             <el-button
                 type='primary'
+                size='small'
                 icon='el-icon-circle-plus'
                 @click='onAddStart'
                 round>
@@ -12,20 +13,21 @@
             </el-button>
             <el-dialog
                 title='ユーザーの追加'
-                :visible.sync='showAddDialog'
+                :visible='showAddDialog'
                 custom-class='user-cmp-dialog'
                 :show-close='false'
                 >
-                <user-cmp
+                <user-edit-cmp
                     :showAdmin='true'
                     :onOk='onAddOk'
                     :onCancel='onAddCancel'
                 />
-            </el-dialog>            
+            </el-dialog>
         </el-header>
         <el-main>
+        <font color='red'>{{usersState.error}}</font><br/>
         <el-table
-            :data='users'
+            :data='usersState.users'
             style='width: 100vw; overflow:auto;'
             height='100vh'
             empty-text='ユーザーはいません。'
@@ -39,7 +41,7 @@
                     <el-button
                         type='text'
                         v-if='scope.row.editingFlag === false'
-                        @click.native.prevent='onEditStart(scope.$index)'>
+                        @click='onEditStart(scope.$index)'>
                         <i class='el-icon-edit' style='color:royalblue'/>
                     </el-button>
                     <!-- adminは削除させない -->
@@ -47,20 +49,20 @@
                         type='text'
                         v-if='scope.row.account !== "admin" && 
                               scope.row.editingFlag === false'
-                        @click.native.prevent='onDeleteOk(scope.$index)'>
+                        @click='onDeleteOk(scope.$index)'>
                         <i class='el-icon-delete' style='color:red'/>
                     </el-button>
                     <!-- 編集中は、チェックとバツで確定とキャンセルを行う -->
                     <el-button
                         type='text'
                         v-if='scope.row.editingFlag === true'
-                        @click.native.prevent='onEditOk(scope.$index)'>
+                        @click='onEditOk(scope.$index)'>
                         <i class='el-icon-check' style='color:forestgreen'/>
                     </el-button>
                     <el-button
                         type='text'
                         v-if='scope.row.editingFlag === true' 
-                        @click.native.prevent='onEditCancel(scope.$index)'>
+                        @click='onEditCancel(scope.$index)'>
                         <i class='el-icon-close' style='color:red'/>
                     </el-button>
                 </template>
@@ -120,56 +122,54 @@
 
 <script>
 import Vue from 'vue'
-import UserCmp from '~/components/user/UserCmp'
+import UserEditCmp from '~/components/user/UserEditCmp'
 import UserController from '~/libs/controllers/UserController'
 import {UserUpdateRequest} from '~/libs/models/User'
 
-Vue.component('user-cmp', UserCmp)
+Vue.component('user-edit-cmp', UserEditCmp)
 
 export default {
   name: "user-list",
   data() {
     return {
-      users: [],
+      usersState: this.$store.state.usersState,
       showAddDialog: false,
       showDeleteConfirm: false,
     }
   },
-  created() {
+  mounted() {
       this.$store.commit('usersState/init',{})
-      this.$store.state.usersState.users.forEach((user) =>{
-        const clone = Object.assign({}, user)
-        clone.editingFlag = false
-        this.users.push(clone)
+      this.usersState.users.forEach((user) =>{
+        this.$set(user, 'editingFlag', false)
       })
   },
   methods: {
     onEditStart(index) {
-      this.users[index].editingFlag = true
+      const user = this.usersState.users[index]
+      this.$set(user, 'editingFlag', true)
     },
     onEditCancel(index) {
-      const user = this.users[index]
-      user.editingFlag = false
+      const user = this.usersState.users[index]
+      this.$set(user, 'editingFlag', false)
       this.$store.commit('usersState/editCancel',{
           index: index,
           user: user,
       })
     },
     onEditOk(index) {
-      const user = this.users[index]
-      const request = new UserUpdateRequest(
-          user.id,
-          user.account,
-          user.name,
-          user.password,
-          user.admin,
-          user.projectIds
-      )
+      const user = this.usersState.users[index]
+      const request = new UserUpdateRequest({
+          id: user.id,
+          account: user.account,
+          name: user.name,
+          password: user.password,
+          admin: user.admin,
+          projectIds: user.projectIds
+      })
       this.$store.commit('usersState/edit', {
           request: request,
       })
-      user.editingFlag = false
-      this.$set(this.users, index, user)
+      this.$set(user, 'editingFlag', false)
     },
     onDeleteStart(index) {
       this.showDeleteConfirm = true
@@ -178,7 +178,6 @@ export default {
       this.$store.commit('usersState/delete',{
           index: index,
       })
-      this.users.splice(index,1)
       this.showDeleteConfirm = false
     },
     onDeleteCancel(index) {
@@ -191,10 +190,8 @@ export default {
       this.$store.commit('usersState/create', {
           request: request,
       })
-      const users = this.$store.state.usersState.users
-      const clone = Object.assign({}, users[users.length-1])
-      clone.editingFlag = false
-      this.users.push(clone)
+      const user = this.usersState.users[this.usersState.users.length-1]
+      this.$set(user, 'editingFlag', false)
       this.showAddDialog = false
     },
     onAddCancel() {

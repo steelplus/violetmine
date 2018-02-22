@@ -1,4 +1,4 @@
-class Iteration {
+class Task {
   static get NewStatus() {return 'New'}
   static get DoingStatus() {return 'Doing'}
   static get DoneStatus() {return 'Done'}
@@ -6,37 +6,38 @@ class Iteration {
   constructor(request) {
     this.id = request.id
     this.subject = request.subject
-    this.description = request.description    
-    this.startOn = request.startOn
-    this.endOn = request.endOn
+    this.description = request.description
+    this.estimatedHours = request.estimatedHours
     this.status = request.status
     this.projectId = request.projectId
+    this.storyId = request.storyId
   }
 
   copyProperties(target) {
     target.subject = this.subject
-    target.description = this.description  
-    target.startOn = this.startOn
-    target.endOn = this.endOn
+    target.description = this.description
+    target.estimatedHours = this.estimatedHours
     target.status = this.status
     target.projectId = this.projectId
+    target.storyId = this.storyId
   }
 }
 
-export class IterationUpdateRequest {
+
+
+export class TaskUpdateRequest {
   static get CREATE_REQUEST() {return undefined}
 
   constructor(payload) {
     this.id = payload.id
     this.subject = payload.subject
     this.description = payload.description
-    this.startOn = payload.startOn
-    this.endOn = payload.endOn
+    this.estimatedHours = payload.estimatedHours
     this.status = payload.status
     this.projectId = payload.projectId
-  }
+    this.storyId = payload.storyId  }
 
-  isCreateRequest() { return (this.id === IterationUpdateRequest.CREATE_REQUEST)}
+  isCreateRequest() { return (this.id === TaskUpdateRequest.CREATE_REQUEST)}
 }
 
 export default Iteration

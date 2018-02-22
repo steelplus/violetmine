@@ -6,26 +6,26 @@
       <h2><font color='royalblue'>ログイン</font></h2>
       </el-header>
       <el-main>
+        <font color='red'>{{loginState.error}}</font>
         <div @keyup.enter='onLogin'>
         <span class='input-label'>アカウント：</span>
         <el-input class='input-text' type='text'
           placeholder='アカウントを入力してください'
-          v-model='account'
+          v-model='loginState.account'
           clearable>
         </el-input><br/>
         <span class='input-label'>パスワード：</span>
         <el-input class='input-text' type='password'
           placeholder='パスワードを入力してください'
-          v-model='password'
+          v-model='loginState.password'
           clearable>
         </el-input><br/>
         </div>
-        <font color='red' v-model='loginState'>{{loginState.error}}</font>
       </el-main>
       <el-footer>
         <el-button
           type='success'
-          :disabled='account === ""'
+          :disabled='loginState.account === ""'
           class='login-button'
           @click='onLogin'
           round>
@@ -41,22 +41,24 @@ export default {
   name: 'login-page',
   data() {
     return {
-      account: '',
-      password: '',
-      error: this.$store.state.loginState.error,
       loginState: this.$store.state.loginState,
     };
   },
   methods: {
     onLogin() {
-      if (!this.account) return
+      if (!this.loginState.account) return
       this.$store.commit('loginState/login', {
-        account: this.account,
-        password: this.password,
+        account: this.loginState.account,
+        password: this.loginState.password,
       })
-      //this.error =
-      if (this.$store.state.loginState.loginUser) {
-        this.$router.push('/main')
+      if (this.loginState.loginUser) {
+        const query = this.$route.query
+        let redirect = false 
+        if(query && query.redirect) {
+          this.$router.push(query.redirect)  
+        } else {
+          this.$router.push('/main')
+        }
       }
     }
   }

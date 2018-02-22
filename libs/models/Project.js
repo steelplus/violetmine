@@ -5,8 +5,6 @@ class Project {
     this.description = request.description
     this.userIds = [].concat(request.userIds)
   }
-
-  //破壊的操作から守るためディープコピーをする。
   getUserIds() {return [].concat(this.userIds)}
   setUserIds(userIds) {this.userIds = [].concat(userIds)}
   addUser(user) {this.userIds.push(user.id)}
@@ -26,11 +24,11 @@ export class ProjectUpdateRequest {
            return undefined;
          }
 
-         constructor(id, name, description = "", userIds = []) {
-           this.id = id;
-           this.name = name;
-           this.description = description;
-           this.userIds = [].concat(userIds);
+         constructor(payload) {
+           this.id = payload.id
+           this.name = payload.name
+           this.description = payload.description
+           this.userIds = [].concat(payload.userIds)
          }
 
          isCreateRequest() {

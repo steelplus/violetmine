@@ -9,7 +9,7 @@ const storageName = 'violetmine-iterations'
 class IterationController {
   static initialize_() {
     if (isInitialized) return
-    const json = !process.server
+    const json = (!process.server)
       ? localStorage.getItem(storageName)
       : undefined
     if (json) {
@@ -22,8 +22,8 @@ class IterationController {
         }
       })
     }
-    if (!json || Object.keys(iterationMap).length === 0) {
-      console.log("WARNING: イテレーション情報を新規に作成します。")
+    if(!json || Object.keys(iterationMap).length === 0){
+      console.log('WARNING: イテレーション情報を新規に作成します。')
       IterationController.save_()
     }
     isInitialized = true
@@ -36,16 +36,16 @@ class IterationController {
   static findByIds(ids) {
     IterationController.initialize_()
     const iteration = []
-    ids.forEach(id => {
+    ids.forEach((id) => {
       const find = iterationMap[id]
-      if (find) iteration.push(find)
+      if(find) iteration.push(find)
     })
     return iteration
   }
 
   static findById(id) {
     const iteration = IterationController.findByIds([id])
-    return iteration.length !== 0 ? iteration[0] : undefined
+    return (iteration.length !== 0) ? iteration[0] : undefined
   }
 
   static findAll() {
@@ -62,17 +62,17 @@ class IterationController {
     const iterations = []
     for (let key in iterationMap) {
       const iteration = iterationMap[key]
-      if (iteration.projectId === projectId) {
+      if(iteration.projectId === projectId) {
         iterations.push(iteration)
       }
     }
     return iterations
   }
 
-  static createIteration(requests) {
-    const iteration = []
-    requests.forEach(request => {
-      if (!request.isCreateRequest) {
+  static createIterations(requests) {
+    const iterations = []
+    requests.forEach((request) => {
+      if(!request.isCreateRequest) {
         throw new Error(
           "イテレーションIDを指定がされているため、新規作成できません。 イテレーションID:" +
             request.id
@@ -80,60 +80,60 @@ class IterationController {
       }
     })
     IterationController.initialize_()
-    requests.forEach(request => {
+    requests.forEach((request) => {
       const iteration = new Iteration(request)
-      iteration.id = nextId++
-      iteration.push(iteration)
+      iteration.id= nextId++
+      request.id = iteration.id
+      iterations.push(iteration)
     })
-    IterationController.executeCreateCallback_(iteration)
-    iteration.forEach(iteration => (iterationMap[iteration.id] = iteration))
+    IterationController.executeCreateCallback_(iterations)
+    iterations.forEach((iteration)=>(iterationMap[iteration.id] = iteration))
     IterationController.save_()
-    return iteration
+    return iterations
   }
 
   static createIteration(request) {
-    const iteration = IterationController.createIteration([request])
-    return iteration.length !== 0 ? iteration[0] : undefined
+    const iteration = IterationController.createIterations([request])
+    return (iteration.length !== 0) ? iteration[0] : undefined
   }
 
-  static updateIteration(rawObjects) {
+  static updateIterations(rawObjects) {
     IterationController.initialize_()
     const iteration = []
     rawObjects.forEach(rawObject => {
       const find = IterationController.findById(rawObject.id)
       if (!find) {
         throw new Error(
-          "存在しないイテレーションを更新しようとしました。イテレーション名:" +
-            rawObject.name
+          '存在しないイテレーションを更新しようとしました。イテレーション名:' + rawObject.subject
         )
       }
       iteration.push(new Iteration(rawObject))
     })
     IterationController.executeUpdateCallback_(iteration)
-    iteration.forEach(iteration => {
+    iteration.forEach((iteration)=>{
       iterationMap[iteration.id] = iteration
     })
     IterationController.save_()
   }
 
   static updateIteration(rawObject) {
-    IterationController.updateIteration([rawObject])
+    IterationController.updateIterations([rawObject])
   }
 
-  static refreshIteration(rawObjects) {
+  static refreshIterations(rawObjects) {
     rawObjects.forEach(rawObject => {
       const find = IterationController.findById(rawObject.id)
-      if (find) {
+      if(find) {
         find.copyProperties(rawObject)
       }
     })
   }
 
   static refreshIteration(rawObject) {
-    IterationController.refreshIteration([rawObject])
+    IterationController.refreshIterations([rawObject])
   }
 
-  static deleteIteration(rawObjects) {
+  static deleteIterations(rawObjects) {
     IterationController.initialize_()
     let result = true
     const finds = []
@@ -152,19 +152,19 @@ class IterationController {
   }
 
   static deleteIteration(rawObject) {
-    IterationController.deleteIteration([rawObject])
+    IterationController.deleteIterations([rawObject])
   }
 
   static executeCreateCallback_(iteration) {
-    callbacks.forEach(callback => callback.createCallback(iteration))
+    callbacks.forEach((callback) => callback.createCallback(iteration))
   }
 
   static executeUpdateCallback_(iteration) {
-    callbacks.forEach(callback => callback.updateCallback(iteration))
+    callbacks.forEach((callback) => callback.updateCallback(iteration))
   }
 
   static executeDeleteCallback_(iteration) {
-    callbacks.forEach(callback => callback.deleteCallback(iteration))
+    callbacks.forEach((callback) => callback.deleteCallback(iteration))
   }
 
   static save_() {
@@ -174,10 +174,10 @@ class IterationController {
     }
     const json = JSON.stringify(iteration)
     if (!process.server) {
-      console.log("INFO: イテレーション情報をセーブしました。")
+      console.log('INFO: イテレーション情報をセーブしました。')
       localStorage.setItem(storageName, json)
     } else {
-      console.log("WARNING: イテレーション情報はセーブされていません。")
+      console.log('WARNING: イテレーション情報はセーブされていません。')
     }
   }
 }

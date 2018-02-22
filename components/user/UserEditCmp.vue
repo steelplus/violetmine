@@ -6,34 +6,49 @@
           <el-input class='input-text' type='text'
             placeholder='名前を入力してください'
             v-model='name'
+            clearable>
+          </el-input><br/>
+          <span class='input-label'>アカウント：</span>
+          <el-input class='input-text' type='text'
+            placeholder='アカウントを入力してください'
+            v-model='account' 
             clearable
-            />
-          <br/>
-          <span class='input-label'>説明：</span>
-          <el-input class='input-text' type='textarea'
-            placeholder='説明を入力してください'
-            v-model='description' 
-            clearable
-            />
-          <br/>
+            :readonly='id !== undefined'>
+          </el-input><br/>
+          <span class='input-label'>パスワード：</span>
+          <el-input class='input-text' type='password'
+            placeholder='パスワードを入力してください'
+            v-model='password'
+            clearable>
+          </el-input><br/>
+          <span v-if='showAdmin' class='input-label'>管理権限：</span>
+          <el-switch
+            v-show='showAdmin'
+            active-color='forestgreen'
+            inactive-color='red'
+            v-model='admin'
+          /><br/>
+          <font color='red'>{{error}}</font>
         </el-main>
         <el-footer>
           <span >
             <el-button 
               type='danger'
+              size='small'
               class='float-buttons'
               icon='el-icon-close'
-              @click.native.prevent='onButtonCancel'
+              @click='onButtonCancel'
               round
             >
               キャンセル
             </el-button>
             <el-button 
               type='success'
+              size='small'
               class='float-buttons'
               icon='el-icon-check'
               :disabled='account === "" || name === ""'
-              @click.native.prevent='onButtonOk'
+              @click='onButtonOk'
               round
             >
               保存
@@ -45,35 +60,40 @@
 </template>
 
 <script>
+import UserController from '~/libs/controllers/UserController'
+import {UserUpdateRequest} from '~/libs/models/User'
 
 export default {
   name: 'user-cmp',
   props: [
-    'story',
-    'projectId',
-    'iterationId',
+    'user',
+    'showAdmin',
     'onOk',
     'onCancel',
   ],
   data() {
-    const story = this.story
+    let user = this.user
     return ({
-      id: (story) ? story.id : StoryUpdateRequest.CREATE_REQUEST,
-      name: (user) ? story.name : '',
-      description: (story) ? story.description : '',
+      id: (user) ? user.id : UserUpdateRequest.CREATE_REQUEST,
+      account: (user) ? user.account : '',
+      name: (user) ? user.name : '',
+      password: (user) ? user.password : '',
+      admin: (user) ? user.admin : false,
+      projectIds: (user) ? user.projectIds : [],
       error: '',
     })
   },
   methods: {
     onButtonOk() {
       if(!this.account) return
-      const request = new UserUpdateRequest(
-        this.id,
-        this.name,
-        this.description,
-        this.projectId,
-        this.iterationId,
-      )
+      const request = new UserUpdateRequest({
+        id: this.id,
+        account: this.account, 
+        name: this.name,
+        password: this.password, 
+        admin: this.admin,
+        projectIds: this.projectIds,
+      })
       try{
         this.onOk(request)
         this.clear()
@@ -96,8 +116,11 @@ export default {
 
     clear() {
       //ダイアログは非表示になっているだけなので入力内容をクリアする。
+      this.account = ''
       this.name = ''
-      this.description = ''
+      this.password = ''
+      this.admin = false
+      this.updateId = undefined
       this.error = ''
     }
   }

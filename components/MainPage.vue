@@ -30,14 +30,10 @@ Vue.component('project-panel', ProjectPanel)
 export default {
   name: 'main-page',
   data() {
-    const loginUser = this.$store.state.loginState.loginUser
+    const loginState = this.$store.state.loginState
     return {
-      admin: (loginUser) ? loginUser.admin : false,
-    }
-  },
-  created() {
-    if(!this.$store.state.loginState.loginUser){
-      this.$router.push('/')
+      loginState: loginState,
+      admin: (loginState.loginUser) ? loginState.loginUser.admin : false,
     }
   },
   methods: {

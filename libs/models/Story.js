@@ -1,39 +1,61 @@
 class Story {
+  static get NewStatus() {return 'New'}
+  static get DoingStatus() {return 'Doing'}
+  static get DoneStatus() {return 'Done'}
+
   constructor(request) {
     this.id = request.id
-    this.name = request.name
+    this.subject = request.subject
     this.description = request.description
-    this.iterationId = request.iterationId
+    this.point = request.point
+    this.position = request.position
+    this.status = request.status
     this.projectId = request.projectId
-    this.order = request.order
+    this.iterationId = request.iterationId
   }
 
   copyProperties(target) {
-    target.name = this.name
+    target.subject = this.subject
     target.description = this.description
-    target.iterationId = this.iterationId
+    target.point = this.point
+    target.position = this.position
+    target.status = this.status
     target.projectId = this.projectId
-    target.order = this.order
+    target.iterationId = this.iterationId
   }
-  static sortByOrder(stories) {
+  static sortByPosition(stories) {
     stories.sort((a,b)=>{
-      if(a.order > b.order) return 1
-      if(a.order < b.order) return -1
+      if(a.position > b.position) return 1
+      if(a.position < b.position) return -1
       return 0
     })
+  }
+
+  static get NoStoryFound() {
+    const story = new Story(new StoryUpdateRequest({
+      id: Story.NO_STORY_FOUND_ID,
+      subject: 'ここにストーリーをドロップします'
+    }))
+    return story
+  }
+
+  static get NO_STORY_FOUND_ID() {
+    return -1
   }
 }
 
 export class StoryUpdateRequest {
   static get CREATE_REQUEST() {return undefined}
 
-  constructor(id, name, description = '', projectId = '', order = 0) {
-    this.id = id
-    this.name = name
-    this.description = description
-    this.iterationId = iterationId
-    this.projectId = projectId
-    this.order = order
+  constructor(payload) {
+    this.id = payload.id
+    this.subject = payload.subject
+    this.description = payload.description
+    this.point = payload.point
+    this.position = payload.position
+    this.status = payload.status
+    this.iterationId = payload.iterationId
+    this.projectId = payload.projectId
   }
 
   isCreateRequest() { return (this.id === StoryUpdateRequest.CREATE_REQUEST)}
