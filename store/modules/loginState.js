@@ -29,7 +29,7 @@ const loginState = {
       } else {
         state.loginUser = undefined
         state.error = 'アカウント名またはパスワードが違います。'
-        console.log("*****************" + state.error);
+        state.password = ''
       }
     },
   },

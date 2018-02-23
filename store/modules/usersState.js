@@ -22,6 +22,7 @@ const usersState = {
     },
 
     create(state, payload) {
+      state.error = ''
       const user = UserController.createUser(payload.request)
       if(user){
         state.users.push(user)
@@ -30,6 +31,7 @@ const usersState = {
 
     edit(state, payload) {
       try{
+        state.error = ''
         UserController.updateUser(payload.request)
       } catch(err) {
         state.error = err.message
@@ -39,8 +41,9 @@ const usersState = {
 
     editCancel(state, payload) {
       try{
-        //const user = state.users[payload.index]
+        state.error = ''
         UserController.refreshUser(payload.user)
+        state.users.splice(payload.index, 1, payload.user)
       } catch(err) {
         state.error = err.message
         console.log('ERROR: usersState#editCancel ' + state.error)
@@ -49,6 +52,7 @@ const usersState = {
 
     delete(state, payload) {
       try{
+        state.error = ''
         const user = state.users[payload.index]
         UserController.deleteUser(user)
         state.users.splice(payload.index, 1)

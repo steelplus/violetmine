@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 
 import loginState from '~/store/modules/loginState'
-import backlogState from "~/store/modules/backlogState";
+import backlogState from '~/store/modules/backlogState'
 import usersState from '~/store/modules/usersState'
 import projectsState from "~/store/modules/projectsState";
 import Framework from '~/libs/Framework'
@@ -17,9 +17,9 @@ const store = () => {
       loginState,
       backlogState,
       usersState,
-      projectsState
+      projectsState,
     }
-  });
+  })
 } 
 
 export default store

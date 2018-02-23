@@ -2,28 +2,36 @@
   <div id='backlog-list'>
       <el-container>
         <el-header>
-            <h3><font color='royalblue'>バックログ</font></h3>
-              <el-select v-model='currentProjectId'>
-                <el-option
-                  v-for="project in userProjects"
-                  :key="project.id"
-                  :label="project.name"
-                  :value="project.id">
-                </el-option>
-              </el-select>
-              <el-dialog
-                title='イテレーションの追加'
-                :visible.sync='showAddIterationDialog'
-                custom-class='iteration-cmp-dialog'
-                :show-close='false'
-                :append-to-body='true'
-                >
-                <iteration-cmp
-                    :projectId='currentProjectId'
-                    :onOk='onAddIterationOk'
-                    :onCancel='onAddIterationCancel'
-                />
-            </el-dialog>            
+          <h3><font color='royalblue'>バックログ</font></h3>
+          <el-select v-model='backlogState.currentProject'>
+            <el-option
+              v-for="project in backlogState.userProjects"
+              :key="project.id"
+              :label="project.name"
+              :value="project">
+            </el-option>
+          </el-select>
+          <el-button
+              type='primary'
+              icon='el-icon-circle-plus'
+              @click='onAddIterationStart'
+              round>
+              イテレーションの追加
+          </el-button>
+          <el-dialog
+            title='イテレーションの追加'
+            :visible.sync='showAddIterationDialog'
+            custom-class='iteration-cmp-dialog'
+            :show-close='false'
+            :disabled='backlogState.currentProject'
+            :append-to-body='true'
+            >
+              <iteration-cmp
+                  :project='backlogState.currentProject'
+                  :onOk='onAddIterationOk'
+                  :onCancel='onAddIterationCancel'
+              />
+            </el-dialog>
             <el-button
                 type='primary'
                 icon='el-icon-circle-plus'
@@ -39,18 +47,18 @@
                 :append-to-body='true'
                 >
                 <story-cmp
-                    :projectId='currentProjectId'
+                    :project='backlogState.currentProject'
                     :onOk='onAddBacklogOk'
                     :onCancel='onAddBacklogCancel'
                 />
             </el-dialog>
-            <font color='red'>{{error}}</font>
         </el-header>
         <el-main>
+          <font color='red'>{{backlogState.error}}</font><br/>
           <table width='100vw'>
             <tr>
-              <td><iteration-list :iteration='iterations'/></td>
-              <td><story-list :stories='backlogs'/></td>
+              <td><iteration-list :iteration='backlogState.iterations'/></td>
+              <td><story-list :stories='backlogState.backlogs'/></td>
             </tr>
           </table>
         </el-main>
@@ -73,46 +81,23 @@ Vue.component('story-cmp', StoryCmp)
 export default {
   name: 'backlog-panel',
   data() {
+    const loginState = this.$store.state.loginState
+    const backlogState = this.$store.state.backlogState
     return {
-      currentProjectId: '',
-      userProjects:[],
-      iterations: [],
-      backlogs: [],
+      loginState: loginState,
+      backlogState: backlogState,
+      // currentProjectId: '',
+      // userProjects:[],
+      // iterations: [],
+      // backlogs: [],
       showAddIterationDialog: false,
       showAddBacklogDialog: false,
-      error: '',
     }
   },
-
   mounted() {
-    console.log("---------mounted")
-    const loginUser = this.$store.state.loginState.loginUser
+    const loginUser = this.loginState.loginUser
     this.$store.commit('backlogState/init',{loginUser: loginUser})
-    const currentProject = this.$store.state.backlogState.currentProject
-    if(currentProject) {
-      this.currentProjectId = currentProject.id
-      this.userProjects = this.$store.state.backlogState.userProjects
-      this.iterations = this.$store.state.backlogState.iterations
-      this.backlogs = this.$store.state.backlogState.backlogs
-    } else {
-      this.error = this.$store.state.backlogState.error
-    }
   },
-
-  // updated() {
-  //   console.log("---------updated")
-  //   const loginUser = this.$store.state.loginState.loginUser
-  //   this.$store.commit('backlogState/init',{loginUser: loginUser})
-  //   const currentProject = this.$store.state.backlogState.currentProject
-  //   if(currentProject) {
-  //     this.currentProjectId = currentProject.id
-  //     this.userProjects = this.$store.state.backlogState.userProjects
-  //     this.iterations = this.$store.state.backlogState.iterations
-  //     this.backlogs = this.$store.state.backlogState.backlogs
-  //   } else {
-  //     this.error = this.$store.state.backlogState.error
-  //   }
-  // },
 
   methods: {
     onAddIterationStart() {
@@ -122,9 +107,6 @@ export default {
       this.$store.commit('backlogState/createIteration', {
           request: request,
       })
-      const iterations = this.$store.state.backlogState.iterations
-      this.iterations.push(iterations[iterations.length-1])
-      this.error = this.$store.state.backlogState.error
       this.showAddIterationDialog = false
     },
     onAddIterationCancel() {
@@ -137,9 +119,6 @@ export default {
       this.$store.commit('backlogState/createStory', {
           request: request,
       })
-      const backlogs = this.$store.state.backlogState.backlogs
-      this.backlogs.push(iterations[backlogs.length-1])
-      this.error = this.$store.state.backlogState.error
       this.showBacklogDialog = false
     },
     onAddBacklogCancel() {

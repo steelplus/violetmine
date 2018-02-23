@@ -10,8 +10,8 @@
           <br/>
           <span class='input-label'>終了日：</span>
           <el-date-picker type='date'
-            placeholder='開始日を選んでください'
-            v-model='startOn'
+            placeholder='終了日を選んでください'
+            v-model='endOn'
             />
           <br/>
           <font color='red'>{{error}}</font>
@@ -31,7 +31,7 @@
               type='success'
               class='float-buttons'
               icon='el-icon-check'
-              :disabled='account === "" || name === ""'
+              :disabled='!startOn||!endOn'
               @click.native.prevent='onButtonOk'
               round
             >

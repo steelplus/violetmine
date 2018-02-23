@@ -12,7 +12,7 @@
             </el-button>
             <el-dialog
                 title='プロジェクトの追加'
-                :visible.sync='showAddDialog'
+                :visible='showAddDialog'
                 custom-class='project-cmp-dialog'
                 :show-close='false'
                 :append-to-body='true'
@@ -24,8 +24,9 @@
             </el-dialog>            
         </el-header>
         <el-main>
+        <font color='red'>{{projectsState.error}}</font><br/>
         <el-table
-            :data='projects'
+            :data='projectsState.projects'
             style='width: 100vw; overflow:auto;'
             height='100vh'
             empty-text='プロジェクトはありません。'
@@ -46,23 +47,19 @@
                         @click.native.prevent='onDeleteOk(scope.$index)'>
                         <i class='el-icon-delete' style='color:red'/>
                     </el-button>
-                    <div :v-if='scope.row.showEditDialog'>
-                      <el-dialog
-                          title='プロジェクトの編集'
-                          :visible=scope.row.showEditDialog
-                          custom-class='project-cmp-dialog'
-                          :show-close='false'
-                          v-model='scope.$index'
-                          :append-to-body='true'
-                          >
-                          <project-cmp
-                              :project='scope.row'
-                              :onOk.sync='onEditOk'
-                              :onCancel.sync='onEditCancel'
-                          />
-                      </el-dialog>
-                    </div>
-                    
+                    <el-dialog
+                        title='プロジェクトの編集'
+                        :visible=scope.row.showEditDialog
+                        custom-class='project-cmp-dialog'
+                        :show-close='false'
+                        :append-to-body='true'
+                        >
+                        <project-cmp
+                            :project='scope.row'
+                            :onOk='onEditOk'
+                            :onCancel='onEditCancel'
+                        />
+                    </el-dialog>
                 </template>
             </el-table-column>
             <el-table-column
@@ -102,71 +99,65 @@ export default {
   name: "project-list",
   data() {
     return {
-      projects: [],
+      projectsState: this.$store.state.projectsState,
       showAddDialog: false,
       showDeleteConfirm: false,
     }
   },
   mounted() {
       this.$store.commit('projectsState/init',{})
-      this.$store.state.projectsState.projects.forEach((project) =>{
-        const clone = Object.assign({}, project)
-        clone.users = UserController.findByIds(clone.userIds)
-        clone.showEditDialog = false
-        this.projects.push(clone)
+      this.projectsState.projects.forEach((project) =>{
+        project.users = UserController.findByIds(project.userIds)
+        this.$set(project, 'showEditDialog', false)
       })
   },
   methods: {
 
     onEditStart(index) {
-      this.projects[index].showEditDialog = true
+      const project = this.projectsState.projects[index]
+      this.$set(project, 'showEditDialog', true)
     },
     onEditCancel(id) {
-      let project
-      let index
-      for(let i=0; i<this.projects.length; i++) {
-        let p = this.projects[i]
-        if(p.id === id) {
-          project = Object.assign({},p)
-          index = i
-        }
-      }
-      if(project) {
-        this.$store.commit('projectsState/editCancel',{
-            index: index,
-            project: project,
-        })
-        project.showEditDialog = false
-        this.$set(this.projects, index, project)
-      }
-    },
-    onEditOk(request) {
-      this.$store.commit('projectsState/edit', {
-          request: request,
-      })
+      const projects = this.projectsState.projects
+      let project = undefined
       let index = -1
-      for(let i=0; i<this.projects.length; i++){
-        const p = this.projects[i]
-        if(p.id === request.id)
-        {
-          p.showEditDialog = false
+      for(let i=0; i<projects.length; i++) {
+        if(projects[i].id === id) {
+          project = projects[i]
           index = i
           break
         }
       }
-      if(index !== -1) {
-        const project = Object.assign({}, request)
-        project.showEditDialog = false
-        project.users = UserController.findByIds(project.userIds)
-        this.$set(this.projects, index, project)
-        const loginUser = this.$store.state.loginState.loginUser
-        if(project.userIds.indexOf(loginUser.id) !== -1) {
-          this.$store.state.loginState.loginUser = UserController.findById(loginUser.id)
-          this.$forceUpdate()
-          console.log("---------------")
+      if(!project) return
+      this.$store.commit('projectsState/editCancel',{
+          index: index,
+          project: project,
+      })
+      //project = this.projectsState.projects[index]
+      this.$set(project, 'showEditDialog', false)
+    },
+    onEditOk(request) {
+      this.$store.commit('projectsState/edit', {
+        request: request,
+      })
+      const projects = this.projectsState.projects
+      let project = undefined
+      let index = -1
+      for(let i=0; i<projects.length; i++) {
+        if(projects[i].id === request.id) {
+          project = projects[i]
+          index = i
+          break
         }
       }
-
+      if(project) {
+        project.users = UserController.findByIds(project.userIds)
+        this.$set(project, 'showEditDialog', false)
+        //ログインユーザのプロジェクトが編集されている可能性があるため、リロード
+        let loginUser = this.$store.state.loginState.loginUser
+        let backlogState = this.$store.state.backlogState
+        backlogState.userProjects = ProjectController.findByIds(loginUser.projectIds)
+      }
     },
     onDeleteStart(index) {
       this.showDeleteConfirm = true
@@ -175,7 +166,6 @@ export default {
       this.$store.commit('projectsState/delete',{
           index: index,
       })
-      this.projects.splice(index,1)
       this.showDeleteConfirm = false
     },
     onDeleteCancel(index) {
@@ -188,16 +178,19 @@ export default {
       this.$store.commit('projectsState/create', {
           request: request,
       })
-      const projects = this.$store.state.projectsState.projects
-      const clone = Object.assign({}, projects[projects.length-1])
-      clone.users = UserController.findByIds(clone.userIds)
-      clone.showEditDialog = false
-      this.projects.push(clone)
+      const projects = this.projectsState.projects
+      const project = projects[projects.length-1]
+      this.$set(project, 'users', UserController.findByIds(project.userIds))
+      this.$set(project, 'showEditDialog', false)
       this.showAddDialog = false
+      //ログインユーザのプロジェクトが編集されている可能性があるため、リロード
+      let loginUser = this.$store.state.loginState.loginUser
+      let backlogState = this.$store.state.backlogState
+      backlogState.userProjects = ProjectController.findByIds(loginUser.projectIds)
     },
     onAddCancel() {
       this.showAddDialog = false
-    }
+    },
   }
 }
 </script>

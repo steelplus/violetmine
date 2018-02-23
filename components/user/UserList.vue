@@ -21,11 +21,12 @@
                     :onOk='onAddOk'
                     :onCancel='onAddCancel'
                 />
-            </el-dialog>            
+            </el-dialog>
         </el-header>
         <el-main>
+        <font color='red'>{{usersState.error}}</font><br/>
         <el-table
-            :data='users'
+            :data='usersState.users'
             style='width: 100vw; overflow:auto;'
             height='100vh'
             empty-text='ユーザーはいません。'
@@ -130,33 +131,32 @@ export default {
   name: "user-list",
   data() {
     return {
-      users: [],
+      usersState: this.$store.state.usersState,
       showAddDialog: false,
       showDeleteConfirm: false,
     }
   },
   created() {
       this.$store.commit('usersState/init',{})
-      this.$store.state.usersState.users.forEach((user) =>{
-        const clone = Object.assign({}, user)
-        clone.editingFlag = false
-        this.users.push(clone)
+      this.usersState.users.forEach((user) =>{
+        this.$set(user, 'editingFlag', false)
       })
   },
   methods: {
     onEditStart(index) {
-      this.users[index].editingFlag = true
+      const user = this.usersState.users[index]
+      this.$set(user, 'editingFlag', true)
     },
     onEditCancel(index) {
-      const user = this.users[index]
-      user.editingFlag = false
+      const user = this.usersState.users[index]
+      this.$set(user, 'editingFlag', false)
       this.$store.commit('usersState/editCancel',{
           index: index,
           user: user,
       })
     },
     onEditOk(index) {
-      const user = this.users[index]
+      const user = this.usersState.users[index]
       const request = new UserUpdateRequest(
           user.id,
           user.account,
@@ -168,8 +168,7 @@ export default {
       this.$store.commit('usersState/edit', {
           request: request,
       })
-      user.editingFlag = false
-      this.$set(this.users, index, user)
+      this.$set(user, 'editingFlag', false)
     },
     onDeleteStart(index) {
       this.showDeleteConfirm = true
@@ -178,7 +177,6 @@ export default {
       this.$store.commit('usersState/delete',{
           index: index,
       })
-      this.users.splice(index,1)
       this.showDeleteConfirm = false
     },
     onDeleteCancel(index) {
@@ -191,10 +189,8 @@ export default {
       this.$store.commit('usersState/create', {
           request: request,
       })
-      const users = this.$store.state.usersState.users
-      const clone = Object.assign({}, users[users.length-1])
-      clone.editingFlag = false
-      this.users.push(clone)
+      const user = this.usersState.users[this.usersState.users.length-1]
+      this.$set(user, 'editingFlag', false)
       this.showAddDialog = false
     },
     onAddCancel() {

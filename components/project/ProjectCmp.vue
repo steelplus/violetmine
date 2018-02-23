@@ -108,6 +108,7 @@ export default {
         this.reset()
       } catch(err) {
         this.error = err.message
+        console.log(this.error)
         return
       }
     },
@@ -119,6 +120,7 @@ export default {
         this.reset()
       } catch(err) {
         this.error = err.message
+        console.log(this.error)
         return
       }
     },

@@ -50,8 +50,8 @@ export default {
   name: 'user-cmp',
   props: [
     'story',
-    'projectId',
-    'iterationId',
+    'project',
+    'iteration',
     'onOk',
     'onCancel',
   ],
@@ -59,8 +59,10 @@ export default {
     const story = this.story
     return ({
       id: (story) ? story.id : StoryUpdateRequest.CREATE_REQUEST,
-      name: (user) ? story.name : '',
+      name: (story) ? story.name : '',
       description: (story) ? story.description : '',
+      projectId: (story) ? story.projectId : this.project.id,
+      iterationId: (story) ? story.iterationId : this.iteration.id,
       error: '',
     })
   },

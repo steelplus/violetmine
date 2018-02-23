@@ -3,13 +3,13 @@ import Story, { StoryUpdateRequest } from '~/libs/models/Story'
 let nextId=1
 let storyMap={}
 let isInitialized = false
-let CALLBACKS = []
+let callbacks = []
 const storageName = 'violetmine-stories'
 
 class StoryController {
   static initialize_() {
     if (isInitialized) return
-    const json = !process.server
+    const json = (!process.server)
       ? localStorage.getItem(storageName)
       : undefined
     if (json) {
@@ -22,8 +22,8 @@ class StoryController {
         }
       })
     }
-    if (!json || Object.keys(storyMap).length === 0) {
-      console.log("WARNING: ストーリー情報を新規に作成します。")
+    if(!json || Object.keys(storyMap).length === 0){
+      console.log('WARNING: ストーリー情報を新規に作成します。')
       StoryController.save_()
     }
     isInitialized = true
@@ -36,16 +36,16 @@ class StoryController {
   static findByIds(ids) {
     StoryController.initialize_()
     const stories = []
-    ids.forEach(id => {
+    ids.forEach((id) => {
       const find = storyMap[id]
-      if (find) stories.push(find)
+      if(find) stories.push(find)
     })
     return stories
   }
 
   static findById(id) {
     const stories = StoryController.findByIds([id])
-    return stories.length !== 0 ? stories[0] : undefined
+    return (stories.length !== 0) ? stories[0] : undefined
   }
 
   static findAll() {
@@ -62,7 +62,7 @@ class StoryController {
     const stories = []
     for (let key in storyMap) {
       const story = storyMap[key]
-      if (story.projectId === projectId) {
+      if(story.projectId === projectId) {
         stories.push(storyMap[key])
       }
     }
@@ -74,7 +74,7 @@ class StoryController {
     const stories = []
     for (let key in storyMap) {
       const story = storyMap[key]
-      if (story.iterationId === iterationId) {
+      if(story.iterationId === iterationId) {
         stories.push(storyMap[key])
       }
     }
@@ -86,7 +86,8 @@ class StoryController {
     const stories = []
     for (let key in storyMap) {
       const story = storyMap[key]
-      if (story.projectId === projectId && story.iterationId === undefined) {
+      if(story.projectId === projectId &&
+         story.iterationId === undefined) {
         stories.push(storyMap[key])
       }
     }
@@ -95,8 +96,8 @@ class StoryController {
 
   static createStories(requests) {
     const stories = []
-    requests.forEach(request => {
-      if (!request.isCreateRequest) {
+    requests.forEach((request) => {
+      if(!request.isCreateRequest) {
         throw new Error(
           "ストーリーIDを指定がされているため、新規作成できません。 ストーリーID:" +
             request.id
@@ -104,20 +105,20 @@ class StoryController {
       }
     })
     StoryController.initialize_()
-    requests.forEach(request => {
+    requests.forEach((request) => {
       const story = new Story(request)
-      story.id = nextId++
+      story.id= nextId++
       stories.push(story)
     })
     StoryController.executeCreateCallback_(stories)
-    stories.forEach(story => (storyMap[story.id] = story))
+    stories.forEach((story)=>(storyMap[story.id] = story))
     StoryController.save_()
     return stories
   }
 
   static createStory(request) {
     const stories = StoryController.createStories([request])
-    return stories.length !== 0 ? stories[0] : undefined
+    return (stories.length !== 0) ? stories[0] : undefined
   }
 
   static updateStories(rawObjects) {
@@ -127,14 +128,15 @@ class StoryController {
       const find = StoryController.findById(rawObject.id)
       if (!find) {
         throw new Error(
-          "存在しないストーリーを更新しようとしました。ストーリー名:" +
-            rawObject.name
+          '存在しないストーリーを更新しようとしました。ストーリー名:' + rawObject.name
         )
       }
+      console.log(rawObject)
       stories.push(new Story(rawObject))
     })
     StoryController.executeUpdateCallback_(stories)
-    stories.forEach(story => {
+    stories.forEach((story)=>{
+      console.log(story)
       storyMap[story.id] = story
     })
     StoryController.save_()
@@ -147,7 +149,7 @@ class StoryController {
   static refreshStories(rawObjects) {
     rawObjects.forEach(rawObject => {
       const find = StoryController.findById(rawObject.id)
-      if (find) {
+      if(find) {
         find.copyProperties(rawObject)
       }
     })
@@ -180,15 +182,15 @@ class StoryController {
   }
 
   static executeCreateCallback_(stories) {
-    callbacks.forEach(callback => callback.createCallback(stories))
+    callbacks.forEach((callback) => callback.createCallback(stories))
   }
 
   static executeUpdateCallback_(stories) {
-    callbacks.forEach(callback => callback.updateCallback(stories))
+    callbacks.forEach((callback) => callback.updateCallback(stories))
   }
 
   static executeDeleteCallback_(stories) {
-    callbacks.forEach(callback => callback.deleteCallback(stories))
+    callbacks.forEach((callback) => callback.deleteCallback(stories))
   }
 
   static save_() {
@@ -198,10 +200,10 @@ class StoryController {
     }
     const json = JSON.stringify(stories)
     if (!process.server) {
-      console.log("INFO: ストーリー情報をセーブしました。")
+      console.log('INFO: ストーリー情報をセーブしました。')
       localStorage.setItem(storageName, json)
     } else {
-      console.log("WARNING: ストーリー情報はセーブされていません。")
+      console.log('WARNING: ストーリー情報はセーブされていません。')
     }
   }
 }

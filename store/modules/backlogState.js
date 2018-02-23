@@ -31,8 +31,6 @@ const backlogState = {
       const loginUser = payload.loginUser
       if(!loginUser)
         return
-      console.log(loginUser.projectIds)
-      console.log("-----------")
       state.userProjects = ProjectController.findByIds(loginUser.projectIds);
       if(state.userProjects.length > 0) {
         const currentProject = state.userProjects[0]
@@ -46,7 +44,7 @@ const backlogState = {
 
     switchCurrentProject(state, payload) {
       const currentProject = payload.currentProject
-      state.currentProject = currentProject
+      state.backlogState.currentProject = currentProject
       state.iterations = IterationController.findByProjectId(currentProject.id)
       state.backlogs = StoryController.findBacklogsByProjectId(currentProject.id)
     },
@@ -59,7 +57,7 @@ const backlogState = {
     },
 
     createStory(state, payload) {
-      const story= StoryController.createProject(payload.request);
+      const story= StoryController.createStory(payload.request);
       if (story) {
         state.backlogs.push(story);
       }
@@ -67,7 +65,7 @@ const backlogState = {
 
     editIteration(state, payload) {
       try {
-        IterationController.updateProject(payload.request);
+        IterationController.updateIteration(payload.request);
       } catch (err) {
         state.error = err.message;
         console.log('ERROR: backlogState#editIteration ' + state.error);
@@ -76,7 +74,7 @@ const backlogState = {
 
     editIterationCancel(state, payload) {
       try {
-        IterationController.refreshProject(payload.iteration);
+        IterationController.refreshIteration(payload.iteration);
       } catch (err) {
         state.error = err.message;
         console.log('ERROR: backlogState#editIterationCancel ' + state.error);
@@ -96,7 +94,7 @@ const backlogState = {
 
     editStory(state, payload) {
       try {
-        StoryController.updateProject(payload.request);
+        StoryController.updateStory(payload.request);
       } catch (err) {
         state.error = err.message;
         console.log('ERROR: backlogState#editStory ' + state.error);
@@ -105,7 +103,7 @@ const backlogState = {
 
     editStoryCancel(state, payload) {
       try {
-        StoryController.refreshProject(payload.backlog);
+        StoryController.refreshStory(payload.backlog);
       } catch (err) {
         state.error = err.message;
         console.log('ERROR: backlogState#editStoryCancel ' + state.error);
@@ -125,7 +123,7 @@ const backlogState = {
 
     deleteStory(state, payload) {
       try {
-        StoryController.deleteProject(payload.story);
+        StoryController.deleteStory(payload.story);
       } catch (err) {
         state.error = err.message;
         console.log('ERROR: backlogState#deleteStory ' + state.error);
