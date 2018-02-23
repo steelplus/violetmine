@@ -3,11 +3,10 @@ import Project, { ProjectUpdateRequest } from '~/libs/models/Project'
 let nextId=1
 let projectMap={}
 let isInitialized = false
-let callbacks = [];
+let callbacks = []
 const storageName = 'violetmine-projects'
 
 class ProjectController {
-
   static initialize_() {
     if (isInitialized) return
     const json = (!process.server)
@@ -108,9 +107,7 @@ class ProjectController {
     rawObjects.forEach(rawObject => {
       const find = ProjectController.findById(rawObject.id)
       if (!find) {
-        throw new Error(
-          '存在しないプロジェクトを更新しようとしました。プロジェクト名:' + rawObject.name
-        )
+        throw new Error("存在しないプロジェクトを更新しようとしました。プロジェクト名:" + rawObject.name)
       }
       projects.push(new Project(rawObject))
     })
