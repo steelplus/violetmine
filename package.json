@@ -13,8 +13,11 @@
     "precommit": "npm run lint"
   },
   "dependencies": {
+    "bulma": "^0.6.2",
     "element-ui": "^2.0.11",
+    "node-sass": "^4.7.2",
     "nuxt": "^1.0.0",
+    "sass-loader": "^6.0.6",
     "vuedraggable": "^2.16.0"
   },
   "devDependencies": {
