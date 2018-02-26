@@ -33,6 +33,9 @@
           <div class="field">
             <a class="button is-primary is-outlined" @click='onLogin' :disabled='loginState.account === ""'>LOG IN</a>
           </div>
+
+          <span class="error-message">{{loginState.error}}</span>
+
         </div>
       </div>
     </section>
@@ -75,5 +78,9 @@
   .avatar {
     margin-top: -70px;
     padding-bottom: 20px;
+  }
+
+  .error-message {
+    color: red;
   }
 </style>
