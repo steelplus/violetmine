@@ -2,6 +2,8 @@
   <div id='main'>
     <div class="tabs is-fullwidth is-toggle">
       <ul>
+        <!--icon-->
+        <img class="logo-image" src="../assets/images/logo-moji.png" />
 
         <!--backlog-->
         <li @click="changeTab('backlog')" v-bind:class="{ 'is-active': activeTab.backlog }">
@@ -19,14 +21,17 @@
           </a>
         </li>
 
-        <!--icon-->
-        <img class="logo-image" src="../assets/images/logo-moji.png" />
-
         <!--user-->
         <li @click="changeTab('user')" v-if='admin === true' v-bind:class="{ 'is-active': activeTab.user }">
           <a>
             <span class="icon is-small"><i class="fas fa-users"></i></span>
             <span>User Management</span>
+          </a>
+        </li>
+        <li class="tab-disabled" v-else>
+          <a>
+            <span class="icon is-small"><i class="fas fa-users"></i></span>
+            <span></span>
           </a>
         </li>
 
@@ -35,6 +40,12 @@
           <a>
             <span class="icon is-small"><i class="fas fa-flag"></i></span>
             <span>Project Management</span>
+          </a>
+        </li>
+        <li class="tab-disabled" v-else>
+          <a>
+            <span class="icon is-small"><i class="fas fa-flag"></i></span>
+            <span></span>
           </a>
         </li>
 
@@ -78,8 +89,8 @@
         loginState: loginState,
         admin: (loginState.loginUser) ? loginState.loginUser.admin : false,
         activeTab: {
-          backlog: false,
-          task: true,
+          backlog: true,
+          task: false,
           user: false,
           project: false,
         },
