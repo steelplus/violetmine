@@ -1,11 +1,11 @@
 <template>
   <div id='login'>
     <section class="hero is-light is-fullheight">
-      <div class="hero-body container has-text-centered">
+      <div class="hero-body container has-text-centered" @keydown.enter="onLogin">
         <div class="box column is-4 is-offset-4">
 
           <figure class="avatar">
-            <img src="https://placehold.it/128x128">
+            <img src="../assets/images/logo.png">
           </figure>
 
           <!--Account-->
@@ -36,6 +36,7 @@
         </div>
       </div>
     </section>
+    <div class="copyright">Logo made with <a href="https://www.designevo.com/" title="Free Online Logo Maker">DesignEvo</a></div>
   </div>
 </template>
 
