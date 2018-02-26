@@ -11,7 +11,7 @@
           <!--Account-->
           <div class="field">
             <div class="control">
-              <input v-model="loginState.account" class="input" type="text"
+              <input autofocus v-model="loginState.account" class="input" type="text"
                      placeholder="Please input your account name">
             </div>
           </div>
