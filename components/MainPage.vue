@@ -6,7 +6,7 @@
         <img class="logo-image" src="../assets/images/logo-moji.png" />
 
         <!--backlog-->
-        <li @click="changeTab('backlog')" v-bind:class="{ 'is-active': activeTab.backlog }">
+        <li @click="changeTab('backlog')" :class="{ 'is-active': activeTab.backlog }">
           <a>
             <span class="icon is-small"><i class="fas fa-tasks"></i></span>
             <span>Backlog</span>
@@ -14,7 +14,7 @@
         </li>
 
         <!--taskboard-->
-        <li @click="changeTab('task')" v-bind:class="{ 'is-active': activeTab.task }">
+        <li @click="changeTab('task')" :class="{ 'is-active': activeTab.task }">
           <a>
             <span class="icon is-small"><i class="fas fa-th-list"></i></span>
             <span>Task Board</span>
@@ -22,7 +22,7 @@
         </li>
 
         <!--user-->
-        <li @click="changeTab('user')" v-if='admin === true' v-bind:class="{ 'is-active': activeTab.user }">
+        <li @click="changeTab('user')" v-if='admin === true' :class="{ 'is-active': activeTab.user }">
           <a>
             <span class="icon is-small"><i class="fas fa-users"></i></span>
             <span>User Management</span>
@@ -36,7 +36,7 @@
         </li>
 
         <!--project-->
-        <li @click="changeTab('project')" v-if='admin === true' v-bind:class="{ 'is-active': activeTab.project }">
+        <li @click="changeTab('project')" v-if='admin === true' :class="{ 'is-active': activeTab.project }">
           <a>
             <span class="icon is-small"><i class="fas fa-flag"></i></span>
             <span>Project Management</span>
