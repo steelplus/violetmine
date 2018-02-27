@@ -118,6 +118,14 @@
 </script>
 
 <style scoped lang="scss">
+  .modal-background {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-card {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
   .input-label {
     display: inline-block;
     width: 150px;

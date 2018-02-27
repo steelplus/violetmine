@@ -20,6 +20,11 @@
     box-sizing: border-box;
   }
 
+  body{
+    height: 100vh;
+    background: url(../assets/images/bg.jpg) center center / cover no-repeat fixed;
+  }
+
   *, *:before, *:after {
     box-sizing: border-box;
     margin: 0;

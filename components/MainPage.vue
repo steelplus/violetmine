@@ -119,8 +119,8 @@
   }
 
   .tabs.is-toggle li.is-active a {
-    background-color: #37c290;
-    border-color: #37c290;
+    background-color: #00d1b2;
+    border-color: #00d1b2;
   }
 
   .tabs li a {
