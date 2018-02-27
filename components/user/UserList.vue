@@ -1,225 +1,200 @@
 <template>
-    <div>
-      <el-container>
-        <el-header>
-            <h3><font color='royalblue'>ユーザーの一覧</font></h3>
-            <el-button
-                type='primary'
-                size='small'
-                icon='el-icon-circle-plus'
-                @click='onAddStart'
-                round>
-                ユーザーの追加
-            </el-button>
-            <el-dialog
-                title='ユーザーの追加'
-                :visible='showAddDialog'
-                custom-class='user-cmp-dialog'
-                :show-close='false'
-                >
-                <user-edit-cmp
-                    :showAdmin='true'
-                    :onOk='onAddOk'
-                    :onCancel='onAddCancel'
-                />
-            </el-dialog>
-        </el-header>
-        <el-main>
-        <font color='red'>{{usersState.error}}</font><br/>
-        <el-table
-            :data='usersState.users'
-            style='width: 100vw; overflow:auto;'
-            height='100vh'
-            empty-text='ユーザーはいません。'
-            stripe
-        >
-            <el-table-column
-                fixed
-                label='操作'
-                width='80'>
-                <template slot-scope='scope'>
-                    <el-button
-                        type='text'
-                        v-if='scope.row.editingFlag === false'
-                        @click='onEditStart(scope.$index)'>
-                        <i class='el-icon-edit' style='color:royalblue'/>
-                    </el-button>
-                    <!-- adminは削除させない -->
-                    <el-button 
-                        type='text'
-                        v-if='scope.row.account !== "admin" && 
-                              scope.row.editingFlag === false'
-                        @click='onDeleteOk(scope.$index)'>
-                        <i class='el-icon-delete' style='color:red'/>
-                    </el-button>
-                    <!-- 編集中は、チェックとバツで確定とキャンセルを行う -->
-                    <el-button
-                        type='text'
-                        v-if='scope.row.editingFlag === true'
-                        @click='onEditOk(scope.$index)'>
-                        <i class='el-icon-check' style='color:forestgreen'/>
-                    </el-button>
-                    <el-button
-                        type='text'
-                        v-if='scope.row.editingFlag === true' 
-                        @click='onEditCancel(scope.$index)'>
-                        <i class='el-icon-close' style='color:red'/>
-                    </el-button>
-                </template>
-            </el-table-column>
-            <el-table-column
-                fixed
-                prop='account'
-                label='アカウント'
-                width='150'/>
-            <el-table-column
-                prop='name'
-                label='名前'
-                width='150'>
-                <template slot-scope='scope'>
-                    <el-input
-                        v-show='scope.row.editingFlag'
-                        v-model='scope.row.name'
-                    >
-                    </el-input>
-                    <span v-show='!scope.row.editingFlag'>
-                        {{scope.row.name}}
-                    </span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                label='パスワード'
-                width='150'>
-                <template slot-scope='scope'>
-                    <el-input
-                        type='password'
-                        v-show='scope.row.editingFlag'
-                        v-model='scope.row.password'
-                    >
-                    </el-input>
-                    <span v-show='!scope.row.editingFlag'>
-                        ********
-                    </span>
-                </template>
-            </el-table-column>
-            <el-table-column
-                label='管理権限'
-                width='150'>
-                <template slot-scope='scope'>
-                    <el-switch
-                        active-color='forestgreen'
-                        inactive-color='red'
-                        v-model='scope.row.admin'
-                        :disabled='!scope.row.editingFlag || scope.row.account === "admin"'
-                    />
-                </template>
-            </el-table-column>
-        </el-table>
-        </el-main>
-      </el-container>
+  <div class="container">
+    <!--タイトル部分-->
+    <section class="hero">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title">
+            <span class="icon is-small"><i class="fas fa-users"></i></span>
+            User Management
+          </h1>
+          <h2 class="subtitle">
+            ユーザーの追加と削除、および権限の管理を行います。
+          </h2>
+        </div>
+      </div>
+    </section>
+
+    <!--エラー表示-->
+    <span style="color: red; ">{{usersState.error}}</span><br />
+
+    <div class="is-divider" data-content="RASCALOID"></div>
+
+    <!--ユーザー追加-->
+    <a @click='onAddStart' class="button is-primary is-outlined">ユーザーの追加</a>
+    <user-edit-cmp
+      :v-if='showAddDialog'
+      :showAdmin='true'
+      :onOk='onAddOk'
+      :onCancel='onAddCancel'
+      :showAddDialog='this.showAddDialog'
+    />
+
+    <!--ユーザー情報表示-->
+    <div class="container">
+      <table class="table is-striped">
+        <!--テーブルヘッダ-->
+        <thead>
+        <tr>
+          <th>
+            操作
+          </th>
+          <th>
+            アカウント名
+          </th>
+          <th>
+            管理者権限
+          </th>
+        </tr>
+        </thead>
+        <!--テーブル内容（アカウントの表示）-->
+        <tbody>
+        <tr v-for='(user, index) in usersState.users' :key="user.id">
+          <td>
+            <!--未編集状態-->
+            <i v-if="user.editingFlag === false" @click="onEditStart(index)" class="fas fa-edit"></i>
+            <i v-if='user.account !== "admin" &&
+                              user.editingFlag === false' @click='onDeleteOk(index)' class="fas fa-trash-alt is-negative"></i>
+
+            <!--編集状態-->
+            <i v-if='user.editingFlag === true' @click='onEditOk(index)' class="fas fa-check"></i>
+            <i v-if='user.editingFlag === true' @click='onEditCancel(index)' class="fas fa-times is-negative"></i>
+          </td>
+          <!--アカウント名表示-->
+          <td>
+            {{user.account}}
+          </td>
+          <!--管理者権限切り替え-->
+          <td>
+            <input v-model='user.admin' :disabled='!user.editingFlag || user.account === "admin"' :id="user.id"
+                   type="checkbox" class="switch" checked="checked">
+            <label :for="user.id"></label>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 </template>
 
 <script>
-import Vue from 'vue'
-import UserEditCmp from '~/components/user/UserEditCmp'
-import UserController from '~/libs/controllers/UserController'
-import {UserUpdateRequest} from '~/libs/models/User'
+  import Vue from 'vue'
+  import UserEditCmp from '~/components/user/UserEditCmp'
+  import UserController from '~/libs/controllers/UserController'
+  import { UserUpdateRequest } from '~/libs/models/User'
 
-Vue.component('user-edit-cmp', UserEditCmp)
+  Vue.component('user-edit-cmp', UserEditCmp);
 
-export default {
-  name: "user-list",
-  data() {
-    return {
-      usersState: this.$store.state.usersState,
-      showAddDialog: false,
-      showDeleteConfirm: false,
-    }
-  },
-  mounted() {
-      this.$store.commit('usersState/init',{})
-      this.usersState.users.forEach((user) =>{
+  export default {
+    name: "user-list",
+    data() {
+      return {
+        usersState: this.$store.state.usersState,
+        showAddDialog: false,
+        showDeleteConfirm: false,
+      }
+    },
+    mounted() {
+      this.$store.commit('usersState/init', {});
+      this.usersState.users.forEach((user) => {
         this.$set(user, 'editingFlag', false)
       })
-  },
-  methods: {
-    onEditStart(index) {
-      const user = this.usersState.users[index]
-      this.$set(user, 'editingFlag', true)
     },
-    onEditCancel(index) {
-      const user = this.usersState.users[index]
-      this.$set(user, 'editingFlag', false)
-      this.$store.commit('usersState/editCancel',{
+    methods: {
+      onEditStart(index) {
+        const user = this.usersState.users[index];
+        this.$set(user, 'editingFlag', true)
+      },
+      onEditCancel(index) {
+        const user = this.usersState.users[index];
+        this.$set(user, 'editingFlag', false);
+        this.$store.commit('usersState/editCancel', {
           index: index,
           user: user,
-      })
-    },
-    onEditOk(index) {
-      const user = this.usersState.users[index]
-      const request = new UserUpdateRequest({
+        })
+      },
+      onEditOk(index) {
+        const user = this.usersState.users[index];
+        const request = new UserUpdateRequest({
           id: user.id,
           account: user.account,
           name: user.name,
           password: user.password,
           admin: user.admin,
           projectIds: user.projectIds
-      })
-      this.$store.commit('usersState/edit', {
+        });
+        this.$store.commit('usersState/edit', {
           request: request,
-      })
-      this.$set(user, 'editingFlag', false)
-    },
-    onDeleteStart(index) {
-      this.showDeleteConfirm = true
-    },
-    onDeleteOk(index) {
-      this.$store.commit('usersState/delete',{
+        });
+        this.$set(user, 'editingFlag', false)
+      },
+      onDeleteStart(index) {
+        this.showDeleteConfirm = true
+      },
+      onDeleteOk(index) {
+        this.$store.commit('usersState/delete', {
           index: index,
-      })
-      this.showDeleteConfirm = false
-    },
-    onDeleteCancel(index) {
-      this.showDeleteConfirm = false
-    },
-    onAddStart() {
-      this.showAddDialog = true
-    },
-    onAddOk(request) {
-      this.$store.commit('usersState/create', {
+        });
+        this.showDeleteConfirm = false
+      },
+      onDeleteCancel(index) {
+        this.showDeleteConfirm = false
+      },
+      onAddStart() {
+        this.showAddDialog = true
+      },
+      onAddOk(request) {
+        this.$store.commit('usersState/create', {
           request: request,
-      })
-      const user = this.usersState.users[this.usersState.users.length-1]
-      this.$set(user, 'editingFlag', false)
-      this.showAddDialog = false
-    },
-    onAddCancel() {
-      this.showAddDialog = false
+        });
+        const user = this.usersState.users[this.usersState.users.length - 1];
+        this.$set(user, 'editingFlag', false);
+        this.showAddDialog = false
+      },
+      onAddCancel() {
+        this.showAddDialog = false
+      }
     }
   }
-}
 </script>
 
-<style scoped>
-.el-header,
-.el-main {
-  text-align: left;
-}
-.user-cmp-dialog {
-  width:600;
-  height:450;
-}
-.icon-edit {
-  color:royalblue;
-}
-.icon-delete {
-  color:red;
-}
-.icon-check {
-  color:forestgreen;
-}
-.icon-close {
-  color:red;
-}
+<style lang="scss" scoped>
+  /*タイトル周りのスタイル*/
+  .hero-body {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    h1 {
+      padding-bottom: 7px;
+    }
+    .title {
+      color: #37c290;
+      .icon {
+        margin-right: 5px;
+      }
+    }
+  }
+  .is-divider {
+    margin-top: 0;
+  }
+
+  /*テーブルまわりのスタイル*/
+  table {
+    i {
+      min-width: 20px;
+      margin-right: 4px;
+      cursor: pointer;
+    }
+    i:hover {
+      color: #37c290;
+      transition: color 0.2s;
+      &.is-negative{
+        color: red;
+      }
+    }
+  }
+
+  /*ボタンのスタイル*/
+  .button {
+    transition: color 0.4s;
+  }
 </style>

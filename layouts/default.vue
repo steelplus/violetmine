@@ -6,6 +6,7 @@
 
 <style lang="scss">
   @import '~bulma';
+  @import url('../node_modules/bulma-extensions/dist/bulma-extensions.min.css');
   @import url('https://use.fontawesome.com/releases/v5.0.6/css/all.css');
 
   html {

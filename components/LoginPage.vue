@@ -1,5 +1,6 @@
 <template>
   <div id='login'>
+    <div class="pageloader"><span class="title">Pageloader</span></div>
     <section class="hero is-light is-fullheight">
       <div class="hero-body container has-text-centered" @keydown.enter="onLogin">
         <div class="box column is-4 is-offset-4">
@@ -82,5 +83,10 @@
 
   .error-message {
     color: red;
+  }
+
+  /*ボタンのスタイル*/
+  .button {
+    transition: color 0.4s;
   }
 </style>
