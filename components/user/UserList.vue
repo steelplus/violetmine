@@ -176,12 +176,10 @@
       }
     }
   }
-
   .is-divider {
     margin-top: 0;
     border-color: rgba(255, 255, 255, 0.3);
   }
-
   .is-divider::after {
     background: rgba(255, 255, 255, 0.3);
   }
