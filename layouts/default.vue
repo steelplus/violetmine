@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-container">
     <nuxt />
   </div>
 </template>
@@ -20,8 +20,12 @@
     box-sizing: border-box;
   }
 
-  body{
-    height: 100vh;
+  .main-container {
+    min-height: 100vh;
+    width: 100vw;
+  }
+
+  body {
     background: url(../assets/images/bg.jpg) center center / cover no-repeat fixed;
   }
 

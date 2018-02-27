@@ -33,49 +33,51 @@
       :showAddDialog='this.showAddDialog'
     />
 
-    <!--ユーザー情報表示-->
-    <table class="table is-striped is-large">
-      <!--テーブルヘッダ-->
-      <thead>
-      <tr>
-        <th>
-          操作
-        </th>
-        <th>
-          アカウント名
-        </th>
-        <th>
-          管理者権限
-        </th>
-      </tr>
-      </thead>
-      <!--テーブル内容（アカウントの表示）-->
-      <tbody>
-      <tr v-for='(user, index) in usersState.users' :key="user.id">
-        <td>
-          <!--未編集状態-->
-          <i v-if="user.editingFlag === false" @click="onEditStart(index)" class="fas fa-edit"></i>
-          <i v-if='user.account !== "admin" &&
+    <div class="user-table">
+      <!--ユーザー情報表示-->
+      <table class="table is-striped">
+        <!--テーブルヘッダ-->
+        <thead>
+        <tr>
+          <th>
+            操作
+          </th>
+          <th>
+            アカウント名
+          </th>
+          <th>
+            管理者権限
+          </th>
+        </tr>
+        </thead>
+        <!--テーブル内容（アカウントの表示）-->
+        <tbody>
+        <tr v-for='(user, index) in usersState.users' :key="user.id">
+          <td>
+            <!--未編集状態-->
+            <i v-if="user.editingFlag === false" @click="onEditStart(index)" class="fas fa-edit"></i>
+            <i v-if='user.account !== "admin" &&
                               user.editingFlag === false' @click='onDeleteOk(index)'
-             class="fas fa-trash-alt is-negative"></i>
+               class="fas fa-trash-alt is-negative"></i>
 
-          <!--編集状態-->
-          <i v-if='user.editingFlag === true' @click='onEditOk(index)' class="fas fa-check"></i>
-          <i v-if='user.editingFlag === true' @click='onEditCancel(index)' class="fas fa-times is-negative"></i>
-        </td>
-        <!--アカウント名表示-->
-        <td>
-          {{user.account}}
-        </td>
-        <!--管理者権限切り替え-->
-        <td>
-          <input v-model='user.admin' :disabled='!user.editingFlag || user.account === "admin"' :id="user.id"
-                 type="checkbox" class="switch" checked="checked">
-          <label :for="user.id"></label>
-        </td>
-      </tr>
-      </tbody>
-    </table>
+            <!--編集状態-->
+            <i v-if='user.editingFlag === true' @click='onEditOk(index)' class="fas fa-check"></i>
+            <i v-if='user.editingFlag === true' @click='onEditCancel(index)' class="fas fa-times is-negative"></i>
+          </td>
+          <!--アカウント名表示-->
+          <td>
+            {{user.account}}
+          </td>
+          <!--管理者権限切り替え-->
+          <td>
+            <input v-model='user.admin' :disabled='!user.editingFlag || user.account === "admin"' :id="user.id"
+                   type="checkbox" class="switch" checked="checked">
+            <label :for="user.id"></label>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -176,10 +178,12 @@
       }
     }
   }
+
   .is-divider {
     margin-top: 0;
     border-color: rgba(255, 255, 255, 0.3);
   }
+
   .is-divider::after {
     background: rgba(255, 255, 255, 0.3);
   }
@@ -188,6 +192,8 @@
   table {
     background: rgba(255, 255, 255, 0.3);
     width: 100%;
+    height: 100%;
+    table-layout: fixed;
     i {
       min-width: 20px;
       margin-right: 4px;
@@ -200,6 +206,12 @@
         color: red;
       }
     }
+  }
+
+  .user-table {
+    overflow: scroll;
+    height: 70vh;
+    position: relative;
   }
 
   /*ボタンのスタイル*/
