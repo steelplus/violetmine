@@ -6,7 +6,7 @@
       <div class="hero-body">
         <div class="container">
           <h1 class="title">
-            <span class="icon is-small"><i class="fas fa-users"></i></span>
+            <span class="icon is-small"><i class="fas fa-flag"></i></span>
             Project Management
           </h1>
           <h2 class="subtitle">
