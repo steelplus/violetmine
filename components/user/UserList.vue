@@ -209,8 +209,8 @@
   }
 
   .user-table {
-    overflow: scroll;
-    height: 70vh;
+    overflow: auto;
+    max-height: 60vh;
     position: relative;
   }
 
