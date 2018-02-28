@@ -71,7 +71,7 @@
           <!--管理者権限切り替え-->
           <td>
             <input v-model='user.admin' :disabled='!user.editingFlag || user.account === "admin"' :id="user.id"
-                   type="checkbox" class="switch" checked="checked">
+                   type="checkbox" class="switch">
             <label :for="user.id"></label>
           </td>
         </tr>
@@ -209,8 +209,8 @@
   }
 
   .user-table {
-    overflow: scroll;
-    height: 70vh;
+    overflow: auto;
+    max-height: 60vh;
     position: relative;
   }
 
