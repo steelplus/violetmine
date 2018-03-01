@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card>
+    <ru-card>
       <span v-show='showStories === false'>
         <i class='el-icon-arrow-down' @click='toggleShowStories'/>
       </span>
@@ -62,7 +62,7 @@
           </div>
         </draggable>
       </div>
-    </el-card>
+    </ru-card>
   </div>
 </template>
 
@@ -75,17 +75,19 @@ import Story, {StoryUpdateRequest} from '~/libs/models/Story'
 import IterationController from '~/libs/controllers/IterationController'
 import StoryController from '~/libs/controllers/StoryController'
 import StoryCard from '~/components/story/StoryCard'
+import RuCard from "~/components/common/RuCard";
 
 Vue.component('draggable', VueDraggable)
 Vue.component('story-card', StoryCard)
 Vue.component('iteration-edit-cmp', IterationEditCmp)
+Vue.component('ru-card', RuCard)
 
 export default {
   props:[
     'project',
     'iteration',
     'onUpdate',
-    'onDelete',  
+    'onDelete',
   ],
   data() {
     const options = {year:'numeric', month:'2-digit', day:'2-digit'}
@@ -205,7 +207,7 @@ export default {
         case Iteration.DoneStatus:
           return {'text-decoration': 'line-through'}
         default:
-          return {'text-decoration': 'none'}  
+          return {'text-decoration': 'none'}
         }
     },
     computePoints() {
