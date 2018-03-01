@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card :body-style='storyCardStyle()'>
+    <ru-card :body-style='storyCardStyle()'>
       <span :style='subjectStyle(story.status)'>{{story.subject}}</span>
       <span class='float-right' v-show='showMenuButtons()'>
         <el-tag size='mini' :type='statusType(story.status)'>
@@ -34,13 +34,17 @@
         </el-button>
       </span>
       <span class='story-point'>{{story.point}}&nbsp;&nbsp;</span>
-    </el-card>
+    </ru-card>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
 import Story, {StoryUpdateRequest} from '~/libs/models/Story'
 import StoryController from '~/libs/controllers/StoryController'
+import RuCard from '~/components/common/RuCard'
+
+Vue.component('ru-card', RuCard);
 
 export default {
   props: [
@@ -86,7 +90,7 @@ export default {
         case Story.DoneStatus:
           return {'text-decoration': 'line-through'}
         default:
-          return {'text-decoration': 'none'}  
+          return {'text-decoration': 'none'}
         }
     },
     showMenuButtons(){
@@ -110,7 +114,6 @@ export default {
     },
     storyCardStyle() {
       return {
-        padding:'15px',
         'background-color':(this.story.id!==Story.NO_STORY_FOUND_ID) ? 'lightcyan' : 'violet'
       }
     },
