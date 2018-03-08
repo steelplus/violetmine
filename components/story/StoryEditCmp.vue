@@ -61,7 +61,7 @@
               size='small'
               class='float-buttons'
               icon='el-icon-check'
-              :disabled='subject === ""'
+              :disabled='dispStory.subject === ""'
               @click='onButtonOk'
               round
             >
@@ -78,27 +78,22 @@ import Story, {StoryUpdateRequest} from '~/libs/models/Story'
 import StoryController from '~/libs/controllers/StoryController'
 
 export default {
-  name: 'story-cmp',
+  name: 'story-edit-cmp',
   props: [
     'story',
-    'project',
-    'iteration',
+    'iterationId',
     'onOk',
     'onCancel',
   ],
   data() {
-    const story = this.story
-    const project = this.project
-    const iteration = this.iteration
+    let story = this.story
+    if(!story) {
+      const project = this.$store.state.backlogState.currentProject
+      const projectId = (project) ? project.id : undefined
+      story = Story.createNewStory(projectId, this.iterationId)
+    }
     return ({
-      id: (story) ? story.id : StoryUpdateRequest.CREATE_REQUEST,
-      subject: (story) ? story.subject : '',
-      description: (story) ? story.description : '',
-      point: (story) ? story.point : undefined,
-      position: (story) ? story.position : 0,
-      status: (story) ? story.status : Story.NewStatus,
-      projectId: (story) ? story.projectId : (project) ? project.id : undefined,
-      iterationId: (story) ? story.iterationId : (iteration) ? iteration.id : undefined,
+      dispStory: story,
       error: '',
       points: [
         {value:0.5},
@@ -118,20 +113,12 @@ export default {
   },
   methods: {
     onButtonOk() {
-      if(!this.subject) return
-      const request = new StoryUpdateRequest({
-        id: this.id,
-        subject: this.subject,
-        description: this.description,
-        point: this.point,
-        position: this.position,
-        status: this.status,
-        projectId: this.projectId,
-        iterationId: this.iterationId,
-      })
+      if(!this.dispStory.subject) return
       try{
-        this.onOk(request)
-        this.clear()
+        const project = this.$store.state.backlogState.currentProject
+        const request = new StoryUpdateRequest(this.dispStory)
+        this.onOk(this.dispStory, request)
+        this.reset()
       } catch(err) {
         this.error = err.message
         return
@@ -141,27 +128,24 @@ export default {
     onButtonCancel() 
     {
       try{
-        this.onCancel()
-        this.clear()
+        this.onCancel(this.dispStory)
+        this.reset()
       } catch(err) {
         this.error = err.message
         return
       }
     },
 
-    clear() {
+    reset() {
+      if(this.dispStory.id !== StoryUpdateRequest.CREATE_REQUEST) return
       //ダイアログは非表示になっているだけなので入力内容をクリアする。
-      const story = StoryController.findById(this.id)
-      const project = this.project
-      const iteration = this.iteration
-      this.id = (story) ? story.id : StoryUpdateRequest.CREATE_REQUEST
-      this.subject = (story) ? story.subject : ''
-      this.description = (story) ? story.description : ''
-      this.point = (story) ? story.point : undefined
-      this.position = (story) ? story.position : 0
-      this.status = (story) ? story.status : Story.NewStatus
-      this.projectId = (story) ? story.projectId : (project) ? project.id : undefined
-      this.iterationId = (story) ? story.iterationId : (iteration) ? iteration.id : undefined
+      this.dispStory.subject = ''
+      this.dispStory.description = ''
+      this.dispStory.point = undefined
+      this.dispStory.position = 0
+      this.dispStory.status = Story.NewStatus
+      this.dispStory.projectId = undefined
+      this.dispStory.iterationId = undefined
       this.error = ''
     }
   }

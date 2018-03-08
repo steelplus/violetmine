@@ -5,7 +5,7 @@
       size='small'
       icon='el-icon-circle-plus'
       @click='onAddStart'
-      :disabled='(!project)'
+      :disabled='backlogState.currentProject === undefined'
       round>
       イテレーションの追加
     </el-button>
@@ -24,11 +24,12 @@
     </el-dialog>
     
     <div
-      v-for='iteration in dispIterations'
+      v-for='iteration in backlogState.iterations'
       :key='iteration.id'>
       <iteration-card 
-        :project='project'
+        :project='backlogState.currentProject'
         :iteration='iteration'
+        :iterationStories='getIterationStories(iteration)'
         :onUpdate='onUpdate'
         :onDelete='onDelete'/>
     </div>
@@ -43,18 +44,24 @@ import IterationCard from '~/components/iteration/IterationCard'
 Vue.component('iteration-card', IterationCard)
 
 export default {
-  props: [
-    'project',
-    'iterations',
+  name: 'iteration-list',
+  prop: [
+    'iteration',
   ],
   data() {
     return ({
-      dispIterations: this.iterations,
+      backlogState: this.$store.state.backlogState,
       showAddDialog: false,
       error:'',
     })
   },
   methods: {
+    getIterationStories(iteration) {
+      const iterationStories = this.backlogState.iterationStories.filter(
+        (story) =>(story.iterationId === iteration.id)
+      )
+      return iterationStories
+    },
     onAddStart() {
       this.showAddDialog = true
     },
@@ -71,26 +78,15 @@ export default {
       this.$store.commit('backlogState/editIteration', {
           request: request,
       })
-      console.log(request.id)
-      for(let i=0; i<this.dispIterations.length; i++) {
-        if(this.dispIterations[i].id === request.id) {
-          const iteration = IterationController.findById(request.id)
-          this.dispIterations.splice(i, 1, iteration)
-          break
-        }
-      }
     },
     onDelete(iteration) {
       if(!confirm('本当に削除しますか？')) return
       this.$store.commit('backlogState/deleteIteration', {
         iteration: iteration,
       })
-      for(let i=0; i<this.dispIterations.length; i++) {
-        if(this.dispIterations[i].id === iteration.id) {
-          this.dispIterations.splice(i, 1)
-          break
-        }
-      }
+      this.$store.commit('tasksState/deleteIteration', {
+        iteration: iteration,
+      })
     },
   }
 }

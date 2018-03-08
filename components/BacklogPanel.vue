@@ -3,7 +3,7 @@
       <el-container>
         <el-header>
           <h3><font color='royalblue'>バックログ</font></h3>
-          <span>対象プロジェクト：</span>
+          <span>プロジェクト：</span>
           <el-select v-model='currentProjectId' @change='switchCurrentProject'>
             <el-option
               v-for='project in backlogState.userProjects'
@@ -15,30 +15,22 @@
         </el-header>
         <el-main>
           <font color='red'>{{backlogState.error}}</font><br/>
-          <table width='1200'>
-            <tbody>
-              <tr>
-                <td width='600'>
-                  <font color='royalblue'>イテレーション</font>&nbsp;&nbsp;
-                </td>
-                <td width='600'>
-                  <font color='royalblue'>バックログ</font>&nbsp;&nbsp;
-                </td>
-              </tr>
-              <tr>
-                <td width='600' valign='top'>
-                  <iteration-list 
-                    :project='backlogState.currentProject'
-                    :iterations='backlogState.iterations'/>
-                </td>
-                <td width='600' valign='top'>
-                  <story-list
-                    :project='backlogState.currentProject'
-                    :stories='dispBacklogs'/>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class='backlog-header'>
+            <div class='backlog-header-block'>
+              <font color='royalblue'>イテレーション</font>
+            </div>
+            <div class='backlog-header-block'>
+              <font color='royalblue'>バックログ</font>
+            </div>
+          </div>
+          <div class='backlog-body'>
+            <div class='backlog-body-block'>
+              <iteration-list/>
+            </div>
+            <div class='backlog-body-block'>
+              <backlog-list/>
+            </div>
+          </div>
         </el-main>
       </el-container>
   </div>
@@ -48,7 +40,7 @@
 import Vue from 'vue'
 import IterationList from '~/components/iteration/IterationList'
 import IterationEditCmp from '~/components/iteration/IterationEditCmp'
-import StoryList from '~/components/story/StoryList'
+import BacklogList from '~/components/story/BacklogList'
 import StoryEditCmp from '~/components/story/StoryEditCmp'
 import IterationController from '~/libs/controllers/IterationController'
 import StoryController from '~/libs/controllers/StoryController'
@@ -56,22 +48,15 @@ import Story from '~/libs/models/Story'
 
 Vue.component('iteration-list', IterationList)
 Vue.component('iteration-edit-cmp', IterationEditCmp)
-Vue.component('story-list', StoryList)
+Vue.component('backlog-list', BacklogList)
 Vue.component('story-edit-cmp', StoryEditCmp)
 
 export default {
   name: 'backlog-panel',
   data() {
-    const loginState = this.$store.state.loginState
-    const backlogState = this.$store.state.backlogState
-    const dispBacklogs = [].concat(backlogState.backlogs)
-    if(dispBacklogs.length===0){
-      dispBacklogs.push(Story.NoStoryFound)
-    }
     return {
-      loginState: loginState,
-      backlogState: backlogState,
-      dispBacklogs: dispBacklogs,
+      loginState: this.$store.state.loginState,
+      backlogState: this.$store.state.backlogState,
       currentProjectId: undefined,
     }
   },
@@ -81,13 +66,6 @@ export default {
     if(this.backlogState.currentProject) {
       this.currentProjectId = this.backlogState.currentProject.id
     }
-    this.dispBacklogs.splice(0, this.dispBacklogs.length)
-    this.backlogState.backlogs.forEach((story) => (
-      this.dispBacklogs.push(story)
-    ))
-    if(this.dispBacklogs.length===0){
-      this.dispBacklogs.push(Story.NoStoryFound)
-    }
   },
 
   methods: {
@@ -95,18 +73,36 @@ export default {
       this.$store.commit('backlogState/switchCurrentProject', {
         currentProjectId: this.currentProjectId
       })
-      this.dispBacklogs.splice(0, this.dispBacklogs.length)
-      this.backlogState.backlogs.forEach((story)=>(
-        this.dispBacklogs.push(story)
-      ))
-      if(this.dispBacklogs.length===0){
-        this.dispBacklogs.push(Story.NoStoryFound)
-      }
+      const currentProject = this.backlogState.currentProject
+      if(!currentProject) return
+      this.$store.commit('tasksState/init',{
+        currentProject: currentProject
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+.backlog-header {
+  vertical-align: top;
+  width:100%;
+}
+.backlog-header-block {
+  vertical-align: top;
+  display:inline-block;
+  width:50%;
+}
+.backlog-body {
+  vertical-align: top;
+  width:100%;
+  height: 100%;
+}
+.backlog-body-block {
+  vertical-align: top;
+  display:inline-block;
+  width:50%;
+  height: 100%;
+}
 
 </style>

@@ -57,7 +57,7 @@
     </div>
 
     <div v-if="activeTab.task">
-      ここにタスクボードを表示
+      <taskboard-panel/>
     </div>
 
     <div v-if="activeTab.user">
@@ -74,17 +74,19 @@
 <script>
   import Vue from 'vue'
   import BacklogPanel from '~/components/BacklogPanel'
+import TaskboardPanel from '~/components/TaskboardPanel'
   import UserPanel from '~/components/UserPanel'
   import ProjectPanel from '~/components/ProjectPanel'
 
-  Vue.component('backlog-panel', BacklogPanel);
-  Vue.component('user-panel', UserPanel);
-  Vue.component('project-panel', ProjectPanel);
+Vue.component('backlog-panel', BacklogPanel)
+Vue.component('taskboard-panel', TaskboardPanel)
+Vue.component('user-panel', UserPanel)
+Vue.component('project-panel', ProjectPanel)
 
   export default {
     name: 'main-page',
     data() {
-      const loginState = this.$store.state.loginState;
+    const loginState = this.$store.state.loginState
       return {
         loginState: loginState,
         admin: (loginState.loginUser) ? loginState.loginUser.admin : false,

@@ -3,8 +3,7 @@ import { mapGetters } from 'vuex'
 import UserController from '~/libs/controllers/UserController'
 
 const loginState = {
-  // ネームスペースを利用する
-  namespaced: true,
+  namespaced: true, // ネームスペースを利用する
   name: 'loginState',
   state: {
     account: '',

@@ -1,8 +1,8 @@
 <template>
   <div>
-    <ru-card :body-style='storyCardStyle()'>
+    <ru-card body-style='padding:15px; background-color: lightcyan; word-break: break-all;'>
       <span :style='subjectStyle(story.status)'>{{story.subject}}</span>
-      <span class='float-right' v-show='showMenuButtons()'>
+      <span class='float-right'>
         <el-tag size='mini' :type='statusType(story.status)'>
           {{statusString(story.status)}}
         </el-tag>
@@ -19,8 +19,7 @@
             :append-to-body='true'
             >
             <story-edit-cmp
-              :project='project'
-              :iteration='iteration'
+              :iterationId='iterationId'
               :story='story'
               :onOk='onEditOk'
               :onCancel='onEditCancel'
@@ -48,8 +47,7 @@ Vue.component('ru-card', RuCard);
 
 export default {
   props: [
-    'project',
-    'iteration',
+    'iterationId',
     'story',
     'onUpdate',
     'onDelete',
@@ -93,14 +91,11 @@ export default {
           return {'text-decoration': 'none'}
         }
     },
-    showMenuButtons(){
-      return this.story.id !== Story.NO_STORY_FOUND_ID
-    },
     onEditStart() {
       this.showEditDialog = true
     },
-    onEditOk(request) {
-      this.onUpdate(request)
+    onEditOk(story, request) {
+      this.onUpdate(story, request)
       this.showEditDialog = false
     },
     onEditCancel() {
@@ -111,11 +106,6 @@ export default {
     },
     onDeleteButton() {
       this.onDelete(this.story)
-    },
-    storyCardStyle() {
-      return {
-        'background-color':(this.story.id!==Story.NO_STORY_FOUND_ID) ? 'lightcyan' : 'violet'
-      }
     },
   }
 }
@@ -128,4 +118,5 @@ export default {
 .float-right {
   float:right;
 }
+
 </style>

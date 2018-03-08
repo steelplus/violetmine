@@ -87,7 +87,7 @@
   import UserController from '~/libs/controllers/UserController'
   import { UserUpdateRequest } from '~/libs/models/User'
 
-  Vue.component('user-edit-cmp', UserEditCmp);
+  Vue.component('user-edit-cmp', UserEditCmp)
 
   export default {
     name: "user-list",
@@ -99,26 +99,26 @@
       }
     },
     mounted() {
-      this.$store.commit('usersState/init', {});
+      this.$store.commit('usersState/init', {})
       this.usersState.users.forEach((user) => {
         this.$set(user, 'editingFlag', false)
       })
     },
     methods: {
       onEditStart(index) {
-        const user = this.usersState.users[index];
+        const user = this.usersState.users[index]
         this.$set(user, 'editingFlag', true)
       },
       onEditCancel(index) {
-        const user = this.usersState.users[index];
-        this.$set(user, 'editingFlag', false);
+        const user = this.usersState.users[index]
+        this.$set(user, 'editingFlag', false)
         this.$store.commit('usersState/editCancel', {
           index: index,
           user: user,
         })
       },
       onEditOk(index) {
-        const user = this.usersState.users[index];
+        const user = this.usersState.users[index]
         const request = new UserUpdateRequest({
           id: user.id,
           account: user.account,
@@ -126,10 +126,10 @@
           password: user.password,
           admin: user.admin,
           projectIds: user.projectIds
-        });
+        })
         this.$store.commit('usersState/edit', {
           request: request,
-        });
+        })
         this.$set(user, 'editingFlag', false)
       },
       onDeleteStart(index) {
@@ -138,7 +138,7 @@
       onDeleteOk(index) {
         this.$store.commit('usersState/delete', {
           index: index,
-        });
+        })
         this.showDeleteConfirm = false
       },
       onDeleteCancel(index) {
@@ -150,9 +150,9 @@
       onAddOk(request) {
         this.$store.commit('usersState/create', {
           request: request,
-        });
-        const user = this.usersState.users[this.usersState.users.length - 1];
-        this.$set(user, 'editingFlag', false);
+        })
+        const user = this.usersState.users[this.usersState.users.length - 1]
+        this.$set(user, 'editingFlag', false)
         this.showAddDialog = false
       },
       onAddCancel() {

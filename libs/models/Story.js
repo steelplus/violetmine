@@ -14,15 +14,6 @@ class Story {
     this.iterationId = request.iterationId
   }
 
-  copyProperties(target) {
-    target.subject = this.subject
-    target.description = this.description
-    target.point = this.point
-    target.position = this.position
-    target.status = this.status
-    target.projectId = this.projectId
-    target.iterationId = this.iterationId
-  }
   static sortByPosition(stories) {
     stories.sort((a,b)=>{
       if(a.position > b.position) return 1
@@ -41,6 +32,32 @@ class Story {
 
   static get NO_STORY_FOUND_ID() {
     return -1
+  }
+
+  static copyProperties(source, target) {
+    target.subject = source.subject
+    target.description = source.description
+    target.point = source.point
+    target.position = source.position
+    target.status = source.status
+    target.projectId = source.projectId
+    target.iterationId = source.iterationId
+  }
+
+  static createNewStory(projectId, iterationId) {
+    const story = new Story(
+      new StoryUpdateRequest({
+        id: StoryUpdateRequest.CREATE_REQUEST,
+        subject: '',
+        description: '',
+        point: undefined,
+        status: Story.NewStatus,
+        projectId: projectId,
+        iterationId: iterationId,
+      })
+    )
+    story.id = StoryUpdateRequest.CREATE_REQUEST
+    return story
   }
 }
 

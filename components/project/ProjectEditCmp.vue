@@ -60,7 +60,7 @@ import UserController from '~/libs/controllers/UserController'
 import {ProjectUpdateRequest} from '~/libs/models/Project'
 
 export default {
-  name: 'project-cmp',
+  name: 'project-edit-cmp',
   props: [
     'project',
     'onOk',
@@ -134,24 +134,13 @@ export default {
           label: user.name + '(' + user.account + ')'
         })
       ))
-      if(!this.project ) {
-        this.id = ProjectUpdateRequest.CREATE_REQUEST
-        this.name = ''
-        this.description = ''
-        this.userIds = []
-        this.assigned= []
+      const project = (this.project) ? ProjectController.findById(this.project.id) : undefined
+      this.id = (project) ? project.id : ProjectUpdateRequest.CREATE_REQUEST
+      this.name = (project) ? project.name : ''
+      this.description = (project) ? project.description : ''
+      this.userIds = (project) ? project.userIds : []
         this.source= source
         this.error= ''
-      } else {
-        const project = ProjectController.findById(this.project.id)
-        if(!project) return
-        this.id = project.id,
-        this.name = project.name
-        this.description = project.description
-        this.userIds = project.userIds
-        this.source = source
-        this.error = ''
-      }
     },
 
     filterUser(query, item) {

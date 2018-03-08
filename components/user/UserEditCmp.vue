@@ -62,7 +62,7 @@
       'showAddDialog',
     ],
     data() {
-      let user = this.user;
+      let user = this.user
       return ({
         id: (user) ? user.id : UserUpdateRequest.CREATE_REQUEST,
         account: (user) ? user.account : '',
@@ -85,32 +85,35 @@
           password: this.password,
           admin: this.admin,
           projectIds: this.projectIds,
-        });
+        })
         try {
-          this.onOk(request);
-          this.clear()
+          this.onOk(request)
+          this.reset()
         } catch (err) {
-          this.error = err.message;
+          this.error = err.message
+          return
         }
       },
 
       onButtonCancel() {
         try {
-          this.onCancel();
-          this.clear()
+          this.onCancel()
+          this.reset()
         } catch (err) {
-          this.error = err.message;
-
+          this.error = err.message
+          return
         }
       },
 
-      clear() {
-        //ダイアログは非表示になっているだけなので入力内容をクリアする。
-        this.account = '';
-        this.name = '';
-        this.password = '';
-        this.admin = false;
-        this.updateId = undefined;
+    reset() {
+      //ダイアログは非表示になっているだけなので入力内容をクリアする。
+      const user = UserController.findById(this.id)
+      this.id = (user) ? user.id : UserUpdateRequest.CREATE_REQUEST
+      this.account = (user) ? user.account : ''
+      this.name = (user) ? user.name : ''
+      this.password = (user) ? user.password : ''
+      this.admin = (user) ? user.admin : false
+      this.projectIds = (user) ? user.projectIds : []
         this.error = ''
       },
     }

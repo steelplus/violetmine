@@ -192,7 +192,7 @@ export class IterationControllerCallback {
   constructor(
     createCallback,
     updateCallback,
-    deleteCallback,    
+    deleteCallback,
   ) {
     this.createCallback_ = createCallback
     this.updateCallback_ = updateCallback
