@@ -16,17 +16,13 @@
             clearable
             />
           <br/>
-          <span class='input-label'>開始日：</span>
-          <el-date-picker type='date' id='startOn'
-            placeholder='開始日を選んでください'
-            v-model='startOn'
-            />
-          <br/>
-          <span class='input-label'>終了日：</span>
-          <el-date-picker type='date' id='endOn'
-            placeholder='終了日を選んでください'
-            v-model='endOn'
-            />
+          <span class='input-label'>時間：</span>
+          <el-input-number
+            v-model='estimatedHours'
+            :min=0
+            :step=1
+            controls-position='right'
+          />
           <br/>
           <span class='input-label'>ステータス：</span>
           <el-select 
@@ -44,7 +40,7 @@
           <font color='red'>{{error}}</font>
         </el-main>
         <el-footer>
-          <span class='float-buttons'>
+          <span >
             <el-button 
               type='danger'
               size='small'
@@ -60,7 +56,7 @@
               size='small'
               class='float-buttons'
               icon='el-icon-check'
-              :disabled='!subject || startOn === undefined || endOn === undefined'
+              :disabled='subject === ""'
               @click='onButtonOk'
               round
             >
@@ -73,53 +69,48 @@
 </template>
 
 <script>
-import Iteration, {IterationUpdateRequest} from '~/libs/models/Iteration'
-import IterationController from '~/libs/controllers/IterationController'
+import Task, {TaskUpdateRequest} from '~/libs/models/Task'
+import TaskController from '~/libs/controllers/TaskController'
 
 export default {
-  name: 'iteration-edit-cmp',
+  name: 'task-edit-cmp',
   props: [
-    'iteration',
+    'story',
+    'task',
     'onOk',
     'onCancel',
   ],
   data() {
-    if(!this.project){
-      throw new Error("iteration-edit-cmpには、projectの指定が必須です。<iteration-edit-cmp :project=値>")
-    }
-    const project = this.project
-    const iteration = this.iteration
+    const task = this.task
+    const story = this.story
     return ({
-      id: (iteration) ? iteration.id : IterationUpdateRequest.CREATE_REQUEST,
-      subject: (iteration) ? iteration.subject : '',
-      description: (iteration) ? iteration.description : '',
-      startOn: (iteration) ? iteration.startOn : undefined,
-      endOn: (iteration) ? iteration.endOn : undefined,
-      status: (iteration) ? iteration.status : Iteration.NewStatus,
+      id: (task) ? task.id : TaskUpdateRequest.CREATE_REQUEST,
+      subject: (task) ? task.subject : '',
+      description: (task) ? task.description : '',
+      estimatedHours: (task) ? task.estimatedHours : undefined,
+      position: (task) ? task.position : undefined,
+      status: (task) ? task.status : Task.NewStatus,
+      storyId: (task) ? task.storyId : (story) ? story.id : undefined,
       error: '',
       statuses: [
-        {label: '新規', value: Iteration.NewStatus},
-        {label: '着手', value: Iteration.DoingStatus},
-        {label: '完了', value: Iteration.DoneStatus},
+        {label: '新規', value: Task.NewStatus},
+        {label: '着手', value: Task.DoingStatus},
+        {label: '完了', value: Task.DoneStatus},
       ],
     })
   },
   methods: {
     onButtonOk() {
       if(!this.subject) return
-      if(this.startOn === undefined||this.endOn === undefined) return
-      if(this.startOn > this.endOn) {
-        this.error = '終了日は、開始日より先の日付を選んでください'
-        return
-      }
       const project = this.$store.state.backlogState.currentProject
-      const request = new IterationUpdateRequest({
+      const request = new TaskUpdateRequest({
         id: this.id,
         subject: this.subject,
         description: this.description,
-        startOn: this.startOn, 
-        endOn: this.endOn,
+        estimatedHours: this.estimatedHours,
+        position: this.position,
         status: this.status,
+        storyId: this.storyId,
         projectId: (project) ? project.id : undefined,
       })
       try{
@@ -143,15 +134,19 @@ export default {
     },
 
     reset() {
-      const iteration = IterationController.findById(this.id)
-      this.subject = (iteration) ? iteration.subject : ''
-      this.description = (iteration) ? iteration.description : ''
-      this.startOn = (iteration) ? iteration.startOn : undefined
-      this.endOn = (iteration) ? iteration.endOn : undefined
-      this.status = (iteration) ? iteration.status : Iteration.NewStatus
+      //ダイアログは非表示になっているだけなので入力内容を初期化する。
+      const task = TaskController.findById(this.id)
+      const project = this.project
+      this.id = (task) ? task.id : TaskUpdateRequest.CREATE_REQUEST
+      this.subject = (task) ? task.subject : ''
+      this.description = (task) ? task.description : ''
+      this.estimatedHours = (task) ? task.estimatedHours : undefined
+      this.position = (task) ? task.position : undefined
+      this.status = (task) ? task.status : Task.NewStatus
+      this.error = ''
     }
   }
-};
+}
 </script>
 
 <style scoped>

@@ -213,7 +213,7 @@ export class UserControllerCallback {
   constructor(
     createCallback,
     updateCallback,
-    deleteCallback,    
+    deleteCallback,
   ) {
     this.createCallback_ = createCallback
     this.updateCallback_ = updateCallback
@@ -270,6 +270,6 @@ export const UserProjectCallback = new ProjectControllerCallback(
   createOrUpdateProjects,
   createOrUpdateProjects,
   deleteProjects,
-) 
+)
 
 export default UserController

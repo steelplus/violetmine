@@ -38,7 +38,8 @@ class StoryController {
     const stories = []
     ids.forEach((id) => {
       const find = storyMap[id]
-      if(find) stories.push(find)
+      const copy = new Story(find)
+      if(find) stories.push(copy)
     })
     return stories
   }
@@ -52,7 +53,8 @@ class StoryController {
     StoryController.initialize_()
     const stories = []
     for (let key in storyMap) {
-      stories.push(storyMap[key])
+      const copy = new Story(storyMap[key])
+      stories.push(copy)
     }
     return stories
   }
@@ -63,8 +65,9 @@ class StoryController {
     for (let key in storyMap) {
       const story = storyMap[key]
       if(story.projectId === projectId) {
-        stories.push(storyMap[key])
-      }
+        const copy = new Story(story)
+        stories.push(copy)
+        }
     }
     return stories
   }
@@ -75,7 +78,8 @@ class StoryController {
     for (let key in storyMap) {
       const story = storyMap[key]
       if(story.iterationId === iterationId) {
-        stories.push(storyMap[key])
+        const copy = new Story(story)
+        stories.push(copy)
       }
     }
     return stories
@@ -87,7 +91,8 @@ class StoryController {
     for (let key in storyMap) {
       const story = storyMap[key]
       if(story.projectId === projectId && !story.iterationId) {
-        stories.push(storyMap[key])
+        const copy = new Story(story)
+        stories.push(copy)
       }
     }
     return stories
@@ -148,7 +153,7 @@ class StoryController {
     rawObjects.forEach(rawObject => {
       const find = StoryController.findById(rawObject.id)
       if(find) {
-        find.copyProperties(rawObject)
+        Story.copyProperties(find,rawObject)
       }
     })
   }
@@ -216,7 +221,7 @@ export class StoryControllerCallback {
   constructor(
     createCallback,
     updateCallback,
-    deleteCallback,    
+    deleteCallback,
   ) {
     this.createCallback_ = createCallback
     this.updateCallback_ = updateCallback

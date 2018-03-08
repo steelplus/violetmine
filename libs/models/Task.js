@@ -8,6 +8,7 @@ class Task {
     this.subject = request.subject
     this.description = request.description
     this.estimatedHours = request.estimatedHours
+    this.assignedUserIds = request.assignedUserIds
     this.status = request.status
     this.projectId = request.projectId
     this.storyId = request.storyId
@@ -17,6 +18,7 @@ class Task {
     target.subject = this.subject
     target.description = this.description
     target.estimatedHours = this.estimatedHours
+    target.assignedUserIds = this.assignedUserIds
     target.status = this.status
     target.projectId = this.projectId
     target.storyId = this.storyId
@@ -34,10 +36,11 @@ export class TaskUpdateRequest {
     this.description = payload.description
     this.estimatedHours = payload.estimatedHours
     this.status = payload.status
+    this.assignedUserIds = payload.assignedUserIds
     this.projectId = payload.projectId
     this.storyId = payload.storyId  }
 
   isCreateRequest() { return (this.id === TaskUpdateRequest.CREATE_REQUEST)}
 }
 
-export default Iteration
+export default Task

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ru-card>
+    <el-card>
       <span v-show='showStories === false'>
         <i class='el-icon-arrow-down' @click='toggleShowStories'/>
       </span>
@@ -10,14 +10,14 @@
       &nbsp;
       <span :style='subjectStyle(status)'>{{subject}}</span>
       <span class='float-right'>
-        <el-tag size='mini' :type='statusType(status)'>
+        <el-tag size='mini' :type='statusType(status)' style='position:relative; bottom: 8px;'>
           {{statusString(status)}}
         </el-tag>
         &nbsp;
         <el-button
           type='text'
           @click='onEditIterationStart'>
-          <i class='el-icon-edit' style='color:royalblue'/>
+          <i class='el-icon-edit' style='position:relative; bottom: 8px; color:royalblue'/>
           <el-dialog
             title='イテレーションの編集'
             :visible='showEditDialog'
@@ -26,7 +26,6 @@
             :append-to-body='true'
             >
             <iteration-edit-cmp
-              :project='project'
               :iteration='iteration'
               :onOk='onEditIterationOk'
               :onCancel='onEditIterationCancel'
@@ -36,7 +35,7 @@
         <el-button
           type='text'
           @click='onDeleteIteration'>
-          <i class='el-icon-delete' style='color:red'/>
+          <i class='el-icon-delete' style='position:relative; bottom: 8px; color:red'/>
         </el-button>
       </span>
       <span class='float-right'>{{points}}&nbsp;&nbsp;</span>
@@ -44,25 +43,29 @@
       <span>{{startOn}} - {{endOn}}</span>
       <div v-show='showStories === true'>
         <draggable
-          v-model='dispStories'
+          class='drag-area'
+          v-model='iterationStories'
           :id='"iteration-" + iteration.id'
-          :options='{animation:200, group:"stories"}'
-          @change='onChanged'
-          :move='canMove'>
-          <div
-            v-for='story in dispStories'
+          :options='{animation:200, group:"stories", draggable:".story"}'
+          @change='onChanged'>
+          <div class='story'
+            v-for='story in iterationStories'
             :key='story.id'>
             <story-card
               :project='project'
-              :iteration='iteration'
+              :iterationId='(iteration)? iteration.id : undefined'
               :story='story'
               :onUpdate='onUpdateStory'
               :onDelete='onDeleteStory'
             />
           </div>
+          <!-- class='draggable-card' -->
         </draggable>
+        <div v-show='iterationStories.length === 0' class='placeholder'>
+          ここにストーリーをドロップします
+        </div>
       </div>
-    </ru-card>
+    </el-card>
   </div>
 </template>
 
@@ -75,17 +78,16 @@ import Story, {StoryUpdateRequest} from '~/libs/models/Story'
 import IterationController from '~/libs/controllers/IterationController'
 import StoryController from '~/libs/controllers/StoryController'
 import StoryCard from '~/components/story/StoryCard'
-import RuCard from "~/components/common/RuCard";
 
 Vue.component('draggable', VueDraggable)
 Vue.component('story-card', StoryCard)
 Vue.component('iteration-edit-cmp', IterationEditCmp)
-Vue.component('ru-card', RuCard)
 
 export default {
   props:[
     'project',
     'iteration',
+    'iterationStories',
     'onUpdate',
     'onDelete',
   ],
@@ -93,25 +95,23 @@ export default {
     const options = {year:'numeric', month:'2-digit', day:'2-digit'}
     const startDate = new Date(this.iteration.startOn)
     const endDate = new Date(this.iteration.endOn)
-    const dispStories = StoryController.findByIterationId(this.iteration.id)
-    if(dispStories.length===0){
-      dispStories.push(Story.NoStoryFound)
-    }
+    const backlogState = this.$store.state.backlogState
     const now = new Date()
-    const showStories = (startDate <= now && now <= endDate)
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const showStories = (startDate <= today && today <= endDate)
     return {
       subject: this.iteration.subject,
       status: this.iteration.status,
       startOn: startDate.toLocaleDateString('ja-JP', options),
       endOn: endDate.toLocaleDateString('ja-JP', options),
       points: 0,
+      backlogState: backlogState,
       showStories: showStories,
-      dispStories: dispStories,
       showEditDialog: false,
       statuses: [
         {label: '新規', value: Iteration.NewStatus},
         {label: '着手', value: Iteration.DoingStatus},
-        {label: '完了',   value: Iteration.DoneStatus},
+        {label: '完了', value: Iteration.DoneStatus},
       ],
     }
   },
@@ -120,9 +120,12 @@ export default {
   },
   methods: {
     onEditIterationStart() {
+      console.log("IterationCard#onEditIterationStart")
       this.showEditDialog = true
+      console.log(this.state)
     },
     onEditIterationOk(request) {
+      console.log("IterationCard#onEditIterationOk")
       this.onUpdate(request)
       const iteration = IterationController.findById(request.id)
       const startDate = new Date(iteration.startOn)
@@ -134,49 +137,41 @@ export default {
       this.startOn = startDate.toLocaleDateString('ja-JP', options)
       this.endOn = endDate.toLocaleDateString('ja-JP', options)
       this.showEditDialog = false
+      console.log(this.state)
     },
     onEditIterationCancel() {
+      console.log("IterationCard#onEditIterationCancel")
       this.showEditDialog = false
+      console.log(this.state)
     },
     onDeleteIteration() {
-      console.log("here1")
-      console.log(this.iteration)
+      console.log("IterationCard#onDeleteIteration")
       this.onDelete(this.iteration)
+      console.log(this.state)
     },
-    onUpdateStory(request) {
+    onUpdateStory(story, request) {
+      console.log("IterationCard#onUpdateStory")
       this.$store.commit('backlogState/editStory', {
+        story: story,
         request: request,
       })
-      const index = this.storyIndex(request.id)
-      if(index !== -1) {
-        const story = StoryController.findById(request.id)
-        this.dispStories.splice(index, 1, story)
-      }
+      this.$store.commit('tasksState/reloadStory', {
+        storyId: story.id,
+      })
       this.points = this.computePoints()
+      console.log(this.state)
     },
     onDeleteStory(story) {
+      console.log("IterationCard#onDeleteStory")
       if(!confirm('本当に削除しますか？')) return
       this.$store.commit('backlogState/deleteStory', {
         story: story,
       })
-      const index = this.storyIndex(story.id)
-      if(index !== -1) {
-        this.dispStories.splice(index, 1)
-        if(this.dispStories.length === 0) {
-          this.dispStories.push(Story.NoStoryFound)
-        }
-      }
+      this.$store.commit('tasksState/deleteStory', {
+        story: story,
+      })
       this.points = this.computePoints()
-    },
-    storyIndex(targetId) {
-      let index= -1
-      for(let i=0; i<this.dispStories.length; i++) {
-        if(this.dispStories[i].id === targetId) {
-          index = i
-          break
-        }
-      }
-      return index
+      console.log(this.state)
     },
     statusString(status) {
       switch(status) {
@@ -207,12 +202,12 @@ export default {
         case Iteration.DoneStatus:
           return {'text-decoration': 'line-through'}
         default:
-          return {'text-decoration': 'none'}
+          return {'text-decoration': 'none'}  
         }
     },
     computePoints() {
       let points = 0
-      this.dispStories.forEach((story) => {
+      this.iterationStories.forEach((story) => {
         points += ((story.point) ? story.point : 0)
       })
       return points
@@ -221,30 +216,24 @@ export default {
       this.showStories = !this.showStories
     },
     onChanged(event) {
+      console.log("IterationCard#onChanged")
       const added = event.added
       const removed = event.removed
       if(!added && !removed) return
       if(added) {
         const story = added.element
-        const request = new StoryUpdateRequest(story)
-        request.iterationId = this.iteration.id
-        StoryController.updateStory(request)
-        for(let i=this.dispStories.length; i>0; i--) {
-          const placeholder = this.dispStories[i-1]
-          if(placeholder.id === Story.NO_STORY_FOUND_ID) {
-            this.dispStories.splice(i-1,1)
-          }
-        }
-      }
-      if(removed) {
-        if(this.dispStories.length === 0) {
-          this.dispStories.push(Story.NoStoryFound)
-        }
+        this.$store.commit('backlogState/moveToIterationStory', {
+          story: story,
+          iterationId: this.iteration.id
+        })
+        this.$store.commit('tasksState/moveToIterationStory', {
+          story: story,
+          iterationId: this.iteration.id
+        })
+      } else if(removed) {
       }
       this.points = this.computePoints()
-    },
-    canMove(event, originalEvent) {
-      return (event.draggedContext.element.id !== Story.NO_STORY_FOUND_ID)
+      console.log(this.state)
     },
   },
 }
@@ -253,5 +242,22 @@ export default {
 <style scoped>
 .float-right {
   float:right;
+}
+.drag-area {
+  min-height: 60px;
+  height: 100%;
+}
+.placeholder {
+  opacity: 0.8;
+  position: relative;
+  max-width: 80%;
+  text-align: center;
+  left:5%;
+  bottom: 50px;
+  padding: 3px;
+  border: 2px dashed silver;
+  border-radius: 3px;
+  box-shadow: 0px 0px 10px silver;
+  background-color: violet;
 }
 </style>

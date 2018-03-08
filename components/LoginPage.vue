@@ -45,34 +45,34 @@
 </template>
 
 <script>
-  export default {
-    name: 'login-page',
-    data() {
-      return {
-        loginState: this.$store.state.loginState,
-      };
-    },
-    methods: {
-      onLogin() {
+export default {
+  name: 'login-page',
+  data() {
+    return {
+      loginState: this.$store.state.loginState,
+    };
+  },
+  methods: {
+    onLogin() {
         if (!this.loginState.account) {
           return
         }
-        this.$store.commit('loginState/login', {
-          account: this.loginState.account,
-          password: this.loginState.password,
-        });
-        if (this.loginState.loginUser) {
-          const query = this.$route.query;
-          let redirect = false;
-          if (query && query.redirect) {
-            this.$router.push(query.redirect)
-          } else {
-            this.$router.push('/main')
-          }
+      this.$store.commit('loginState/login', {
+        account: this.loginState.account,
+        password: this.loginState.password,
+      })
+      if (this.loginState.loginUser) {
+        const query = this.$route.query
+        let redirect = false
+        if(query && query.redirect) {
+          this.$router.push(query.redirect)
+        } else {
+          this.$router.push('/main')
         }
       }
     }
-  };
+  }
+}
 </script>
 
 <style scoped>

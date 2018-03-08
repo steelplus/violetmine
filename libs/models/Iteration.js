@@ -6,7 +6,7 @@ class Iteration {
   constructor(request) {
     this.id = request.id
     this.subject = request.subject
-    this.description = request.description    
+    this.description = request.description
     this.startOn = request.startOn
     this.endOn = request.endOn
     this.status = request.status
@@ -15,7 +15,7 @@ class Iteration {
 
   copyProperties(target) {
     target.subject = this.subject
-    target.description = this.description  
+    target.description = this.description
     target.startOn = this.startOn
     target.endOn = this.endOn
     target.status = this.status
