@@ -20,7 +20,6 @@
           <slot name="footer">
             default footer
           </slot>
-          <button @click="$emit('close')" class="button">キャンセル</button>
         </footer>
       </div>
     </div>
