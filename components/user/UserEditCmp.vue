@@ -1,56 +1,49 @@
 <template>
   <div>
-    <div class="modal" :class="{ 'is-active': this.showAddDialog }">
-      <div class="modal-background"></div>
-      <div class="modal-card">
+    <ru-dialog 
+      v-if="visible" 
+      :closeCallback="onButtonCancel"
+      title="ユーザーの追加">
 
-        <!--ヘッダ-->
-        <header class="modal-card-head">
-          <p class="modal-card-title">ユーザーの追加</p>
-          <button @click='onCancel' class="delete" aria-label="close"></button>
-        </header>
-
-        <section class="modal-card-body">
-          <!--名前入力-->
-          <div class="field">
-            <input v-model='name' class="input" type="text" placeholder="名前を入力して下さい">
-          </div>
-
-          <!--アカウント名入力-->
-          <div class="field">
-            <input v-model='account' :readonly='id !== undefined' class="input" type="text"
-                   placeholder="アカウント名を入力して下さい">
-          </div>
-
-          <!--パスワード入力-->
-          <div class="field">
-            <input v-model='password' class="input" type="password" placeholder="パスワードを入力して下さい">
-          </div>
-
-          <!--管理者権限入力-->
-          <div v-if="showAdmin" class="field">
-            <input v-model='admin' id="adminSwitch" type="checkbox" class="switch" checked="checked">
-            <label for="adminSwitch">管理者権限</label>
-          </div>
-
-          <!--エラーメッセージ-->
-          <span style="color: red; ">{{error}}</span>
-        </section>
-
-        <!--フッタ-->
-        <footer class="modal-card-foot">
-          <button @click="onButtonOk" :disabled='account === "" || name === ""' class="button is-success">保存</button>
-          <button @click="onCancel" class="button">キャンセル</button>
-        </footer>
-
+      <!--名前入力-->
+      <div class="field">
+        <input v-model='name' class="input" type="text" placeholder="名前を入力して下さい">
       </div>
-    </div>
+
+      <!--アカウント名入力-->
+      <div class="field">
+        <input v-model='account' :readonly='id !== undefined' class="input" type="text"
+                placeholder="アカウント名を入力して下さい">
+      </div>
+
+      <!--パスワード入力-->
+      <div class="field">
+        <input v-model='password' class="input" type="password" placeholder="パスワードを入力して下さい">
+      </div>
+
+      <!--管理者権限入力-->
+      <div v-if="showAdmin" class="field">
+        <input v-model='admin' id="adminSwitch" type="checkbox" class="switch" checked="checked">
+        <label for="adminSwitch">管理者権限</label>
+      </div>
+
+      <!--エラーメッセージ-->
+      <span style="color: red; ">{{error}}</span>
+
+      <!--フッタ-->
+      <button slot="footer" @click="onButtonOk" :disabled='account === "" || name === ""' class="button is-success">保存</button>
+      <button slot="footer" @click="onButtonCancel" class="button">キャンセル</button>
+    </ru-dialog>
   </div>
 </template>
 
 <script>
+  import Vue from 'vue'
   import UserController from '~/libs/controllers/UserController'
   import { UserUpdateRequest } from '~/libs/models/User'
+  import RuDialog from '~/components/common/RuDialog'
+
+  Vue.component('ru-dialog', RuDialog)
 
   export default {
     name: 'user-cmp',
@@ -59,7 +52,7 @@
       'showAdmin',
       'onOk',
       'onCancel',
-      'showAddDialog',
+      'visible',
     ],
     data() {
       let user = this.user
@@ -106,6 +99,7 @@
       },
 
     reset() {
+      this.$emit('update:visible', false)
       //ダイアログは非表示になっているだけなので入力内容をクリアする。
       const user = UserController.findById(this.id)
       this.id = (user) ? user.id : UserUpdateRequest.CREATE_REQUEST
@@ -121,14 +115,6 @@
 </script>
 
 <style scoped lang="scss">
-  .modal-background {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .modal-card {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
   .input-label {
     display: inline-block;
     width: 150px;
@@ -137,18 +123,5 @@
   .input-text {
     display: inline-block;
     width: 400px;
-  }
-
-  .el-header,
-  .el-main {
-    text-align: left;
-  }
-
-  .el-footer {
-    text-align: center;
-  }
-
-  .float-buttons {
-    float: right;
   }
 </style>

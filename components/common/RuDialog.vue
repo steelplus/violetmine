@@ -4,10 +4,8 @@
       <div class="modal-container">
 
         <header class="modal-card-head">
-          <slot name="header">
-            default header
-          </slot>
-          <button @click="$emit('close')" class="delete" aria-label="close"></button>
+          <p class="modal-card-title">{{ title }}</p>
+          <button @click="closeCallback" class="delete" aria-label="close"></button>
         </header>
 
         <section class="modal-card-body">
@@ -29,6 +27,16 @@
 <script>
   export default {
     name: 'RuDialog',
+    props: {
+      title: {
+        type: String,
+        default: ''
+      },
+      closeCallback: {
+        type: Function,
+        require: true
+      }
+    }
   };
 </script>
 
@@ -70,6 +78,10 @@
 }
 
 .modal-default-button {
+  float: right;
+}
+
+.float-buttons {
   float: right;
 }
 </style>

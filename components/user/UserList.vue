@@ -21,17 +21,18 @@
     <div class="is-divider" data-content="RASCALOID"></div>
 
     <!--ユーザー追加-->
-    <a @click='onAddStart' class="button is-primary is-outlined">ユーザーの追加</a>
+    <!--<a @click='onAddStart' class="button is-primary is-outlined">ユーザーの追加</a>-->
+    <button class="button is-primary is-outlined" @click="showModal = true">ユーザーの追加</button>
 
     <div class="separater"></div>
-
+    
     <user-edit-cmp
-      :v-if='showAddDialog'
       :showAdmin='true'
       :onOk='onAddOk'
       :onCancel='onAddCancel'
-      :showAddDialog='this.showAddDialog'
+      :visible.sync='showModal'
     />
+    
 
     <div class="user-table">
       <!--ユーザー情報表示-->
@@ -94,7 +95,7 @@
     data() {
       return {
         usersState: this.$store.state.usersState,
-        showAddDialog: false,
+        showModal: false,
         showDeleteConfirm: false,
       }
     },
